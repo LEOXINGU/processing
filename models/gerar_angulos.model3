@@ -1,0 +1,206 @@
+<!DOCTYPE model>
+<Option type="Map">
+  <Option name="children" type="Map">
+    <Option name="native:buffer_1" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="native:buffer" type="QString"/>
+      <Option name="component_description" value="Buffer" type="QString"/>
+      <Option name="component_pos_x" value="424.8" type="double"/>
+      <Option name="component_pos_y" value="232.8" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="native:buffer_1" type="QString"/>
+      <Option name="outputs"/>
+      <Option name="outputs_collapsed" value="true" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="DISSOLVE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="false" type="bool"/>
+          </Option>
+        </Option>
+        <Option name="DISTANCE" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="raio" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="END_CAP_STYLE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="camadadepontos" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="JOIN_STYLE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="MITER_LIMIT" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="2" type="double"/>
+          </Option>
+        </Option>
+        <Option name="SEGMENTS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="5" type="int"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option name="native:intersection_1" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="native:intersection" type="QString"/>
+      <Option name="component_description" value="Interseção " type="QString"/>
+      <Option name="component_pos_x" value="510.4000000000001" type="double"/>
+      <Option name="component_pos_y" value="482.4000000000001" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="native:intersection_1" type="QString"/>
+      <Option name="outputs" type="Map">
+        <Option name="Ângulos" type="Map">
+          <Option name="child_id" value="native:intersection_1" type="QString"/>
+          <Option name="component_description" value="Ângulos" type="QString"/>
+          <Option name="component_pos_x" value="705.5999999999999" type="double"/>
+          <Option name="component_pos_y" value="595.4000000000001" type="double"/>
+          <Option name="default_value" type="invalid"/>
+          <Option name="mandatory" value="false" type="bool"/>
+          <Option name="name" value="Ângulos" type="QString"/>
+          <Option name="output_name" value="OUTPUT" type="QString"/>
+        </Option>
+      </Option>
+      <Option name="outputs_collapsed" value="false" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="child_id" value="qgis:polygonstolines_1" type="QString"/>
+            <Option name="output_name" value="OUTPUT" type="QString"/>
+            <Option name="source" value="1" type="int"/>
+          </Option>
+        </Option>
+        <Option name="INPUT_FIELDS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+        <Option name="OVERLAY" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="polgonoderecorte" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="OVERLAY_FIELDS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option name="qgis:polygonstolines_1" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="qgis:polygonstolines" type="QString"/>
+      <Option name="component_description" value="Polígonos para linhas" type="QString"/>
+      <Option name="component_pos_x" value="483.20000000000005" type="double"/>
+      <Option name="component_pos_y" value="368.8000000000002" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="qgis:polygonstolines_1" type="QString"/>
+      <Option name="outputs"/>
+      <Option name="outputs_collapsed" value="true" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="child_id" value="native:buffer_1" type="QString"/>
+            <Option name="output_name" value="OUTPUT" type="QString"/>
+            <Option name="source" value="1" type="int"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+  </Option>
+  <Option name="help"/>
+  <Option name="model_group" value="Levantamento" type="QString"/>
+  <Option name="model_name" value="Gerar Ângulos" type="QString"/>
+  <Option name="parameterDefinitions" type="Map">
+    <Option name="camadadepontos" type="Map">
+      <Option name="data_types" type="List">
+        <Option value="0" type="int"/>
+      </Option>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Camada de Pontos" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="camadadepontos" type="QString"/>
+      <Option name="parameter_type" value="vector" type="QString"/>
+    </Option>
+    <Option name="native:intersection_1:Ângulos" type="Map">
+      <Option name="create_by_default" value="true" type="bool"/>
+      <Option name="data_type" value="-1" type="int"/>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Ângulos" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="native:intersection_1:Ângulos" type="QString"/>
+      <Option name="parameter_type" value="sink" type="QString"/>
+      <Option name="supports_non_file_outputs" value="true" type="bool"/>
+    </Option>
+    <Option name="polgonoderecorte" type="Map">
+      <Option name="data_types" type="List">
+        <Option value="2" type="int"/>
+      </Option>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Polígono de Recorte" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="polgonoderecorte" type="QString"/>
+      <Option name="parameter_type" value="vector" type="QString"/>
+    </Option>
+    <Option name="raio" type="Map">
+      <Option name="data_type" value="1" type="int"/>
+      <Option name="default" value="25" type="QString"/>
+      <Option name="default_unit" value="9" type="int"/>
+      <Option name="description" value="Raio" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="max" value="200" type="double"/>
+      <Option name="metadata"/>
+      <Option name="min" value="10" type="double"/>
+      <Option name="name" value="raio" type="QString"/>
+      <Option name="parameter_type" value="distance" type="QString"/>
+      <Option name="parent" value="" type="QString"/>
+    </Option>
+  </Option>
+  <Option name="parameters" type="Map">
+    <Option name="camadadepontos" type="Map">
+      <Option name="component_description" value="camadadepontos" type="QString"/>
+      <Option name="component_pos_x" value="180" type="double"/>
+      <Option name="component_pos_y" value="135.20000000000002" type="double"/>
+      <Option name="name" value="camadadepontos" type="QString"/>
+    </Option>
+    <Option name="polgonoderecorte" type="Map">
+      <Option name="component_description" value="polgonoderecorte" type="QString"/>
+      <Option name="component_pos_x" value="146.4" type="double"/>
+      <Option name="component_pos_y" value="464.79999999999995" type="double"/>
+      <Option name="name" value="polgonoderecorte" type="QString"/>
+    </Option>
+    <Option name="raio" type="Map">
+      <Option name="component_description" value="raio" type="QString"/>
+      <Option name="component_pos_x" value="179.20000000000005" type="double"/>
+      <Option name="component_pos_y" value="248.8" type="double"/>
+      <Option name="name" value="raio" type="QString"/>
+    </Option>
+  </Option>
+</Option>
