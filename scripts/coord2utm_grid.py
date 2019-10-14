@@ -594,6 +594,10 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
                 if inom100k[:-1] in dicionario:
                     att[1] = dicionario[inom100k[:-1]]+'-'+resto[:-1]
                     feedback.pushInfo('Mapa Índice: {}'.format(att[1]))
+            else:
+                if inom100k[:-1] in dicionario:
+                    att[1] = dicionario[inom100k[:-1]]
+                    feedback.pushInfo('Mapa Índice: {}'.format(att[1]))
         
         feat.setGeometry(geom)
         feat.setAttributes(att)

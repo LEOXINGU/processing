@@ -1,0 +1,16 @@
+
+scripts/MeanAndStdDevPlot.py
+scripts/ImportIntoPostGIS.py
+scripts/Grid.py
+scripts/ExecuteSQL.py
+scripts/Example.py
+scripts/Dissolve.py
+scripts/Datasources2Vrt.py
+scripts/Climb.py
+scripts/CheckValidity.py
+scripts/BoxPlot.py
+scripts/BarPlot.py
+scripts/__pycache__/planimetry.cpython-37.pyc
+scripts/__pycache__/memorial_descritivo.cpython-37.pyc
+processing.log
+scripts/__pycache__/memorial_descritivo.cpython-37.pyc
