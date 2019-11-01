@@ -18,7 +18,7 @@ __copyright__ = '(C) 2019, Leandro França'
 from PyQt5.QtCore import QCoreApplication, QVariant
 from qgis.core import *
 import processing
-from numpy import sin, cos, modf, radians, sqrt
+from numpy import sin, cos, modf, radians, sqrt, floor
 
 
 class ClosedPolygonal(QgsProcessingAlgorithm):
@@ -79,7 +79,7 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.N_0,
-                self.tr('E (origin)'),
+                self.tr('N (origin)'),
                 type = 1,
                 defaultValue = 1000.0
             )
@@ -204,19 +204,25 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
                 return float(lista[0]) + float(lista[1])/60 + float(lista[2])/3600
 
     def dd2dms(self, dd, n_digits):
-        if dd == 0:
-            return "0°00\'00.0\""
-        else:
-            sinal = dd/abs(dd)
-            dd = abs(dd)
-            dd, d_int = modf(dd)
-            mins, m_int = modf(60 * dd)
-            secs = 60 * mins
-            n_digits = int(n_digits)
+        if dd != 0:
+            graus = int(floor(abs(dd)))
+            resto = round(abs(dd) - graus, 10)
+            if dd < 0:
+                texto = '-' + str(graus) + '°'
+            else:
+                texto = str(graus) + '°'
+            minutos = int(floor(60*resto))
+            resto = round(resto*60 - minutos, 10)
+            texto = texto + '{:02d}'.format(minutos) + "'"
+            segundos = resto*60
             if n_digits < 1:
-                n_digits = 1
-            template_sec = "{:." + str(n_digits) + "f}"
-            return str(int(sinal*d_int)) + "°" + str(int(m_int)).zfill(2) + "'" + (template_sec.format(secs)).zfill(3+n_digits) + "''"
+                texto = texto + '{:02d}'.format(int(segundos)) + '"'
+            else:
+                texto = texto + ('{:0' + str(3+n_digits) + '.' + str(n_digits) + 'f}').format(segundos) + '"'
+            return texto
+        else:
+            return "0°00'" + ('{:0' + str(3+n_digits) + '.' + str(n_digits) + 'f}').format(0)
+    
     def str2HTML(self, texto):
         if texto:
             dicHTML = {'Á': '&Aacute;',	'á': '&aacute;',	'Â': '&Acirc;',	'â': '&acirc;',	'À': '&Agrave;',	'à': '&agrave;',	'Å': '&Aring;',	'å': '&aring;',	'Ã': '&Atilde;',	'ã': '&atilde;',	'Ä': '&Auml;',	'ä': '&auml;',	'Æ': '&AElig;',	'æ': '&aelig;',	'É': '&Eacute;',	'é': '&eacute;',	'Ê': '&Ecirc;',	'ê': '&ecirc;',	'È': '&Egrave;',	'è': '&egrave;',	'Ë': '&Euml;',	'ë': '&Euml;',	'Ð': '&ETH;',	'ð': '&eth;',	'Í': '&Iacute;',	'í': '&iacute;',	'Î': '&Icirc;',	'î': '&icirc;',	'Ì': '&Igrave;',	'ì': '&igrave;',	'Ï': '&Iuml;',	'ï': '&iuml;',	'Ó': '&Oacute;',	'ó': '&oacute;',	'Ô': '&Ocirc;',	'ô': '&ocirc;',	'Ò': '&Ograve;',	'ò': '&ograve;',	'Ø': '&Oslash;',	'ø': '&oslash;',	'Ù': '&Ugrave;',	'ù': '&ugrave;',	'Ü': '&Uuml;',	'ü': '&uuml;',	'Ç': '&Ccedil;',	'ç': '&ccedil;',	'Ñ': '&Ntilde;',	'ñ': '&ntilde;',	'Ý': '&Yacute;',	'ý': '&yacute;',	'"': '&quot;',	'<': '&lt;',	'>': '&gt;',	'®': '&reg;',	'©': '&copy;',	'\'': '&apos;', 'ª': '&ordf;', 'º': '&ordm', '°':'&deg;'}
@@ -676,6 +682,9 @@ FRAN&Ccedil;A</p>
             sink.addFeature(feat, QgsFeatureSink.FastInsert)
             if feedback.isCanceled():
                 break
+        
+        feedback.pushInfo(self.tr('Operation completed successfully!'))
+        feedback.pushInfo('Leandro França - Eng Cart')
         
         return {self.POINTS: dest_id,
                     self.HTML: html_output}
