@@ -48,10 +48,10 @@ class LocalTangentPlane(QgsProcessingAlgorithm):
         return self.tr('Local Tangent Plane Transform')
 
     def group(self):
-        return self.tr('LF Topography')
+        return self.tr('LF Surveyor')
 
     def groupId(self):
-        return 'lf_topography'
+        return 'lf_surveyor'
 
     def shortHelpString(self):
         return self.tr('''

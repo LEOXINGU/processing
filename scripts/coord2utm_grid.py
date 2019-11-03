@@ -45,11 +45,11 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
 
     def group(self):
 
-        return self.tr('LF Cartography')
+        return self.tr('LF Cartographer')
 
     def groupId(self):
 
-        return 'lf_cartography'
+        return 'lf_cartographer'
 
     def shortHelpString(self):
 

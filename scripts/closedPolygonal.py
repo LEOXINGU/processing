@@ -49,10 +49,10 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
         return self.tr('Closed Polygonal')
 
     def group(self):
-        return self.tr('LF Topography')
+        return self.tr('LF Surveyor')
 
     def groupId(self):
-        return 'lf_topography'
+        return 'lf_surveyor'
 
     def shortHelpString(self):
         return self.tr("Calculates the adjusted coordinates from angles and horizontal distances of a Closed Polygonal")
@@ -321,6 +321,7 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
         
         # Compensação do Erro de Fechamento Angular
         C_alfa = - E_alfa/n
+        C_alfa = 0 ################################################## APAGAR
         SomaAng_Comp = 0
         for est in readings:
             readings[est]['angle_comp'] = readings[est]['angle'] + C_alfa
@@ -347,6 +348,7 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
         E_linear = sqrt(soma_delta_x**2 + soma_delta_y**2)
         Precisao = '1/'+ str(round(perimetro/E_linear,4))
         
+        soma_delta_x, soma_delta_y = 0,0 ################################## APAGAR
         # Compensação Linear
         for est in readings:
             readings[est]['delta_x_comp'] = readings[est]['delta_x'] - soma_delta_x*readings[est]['dist']/perimetro

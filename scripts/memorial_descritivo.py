@@ -199,14 +199,14 @@ calculados.<o:p></o:p></p>
         """
         Returns the name of the group this algorithm belongs to.
         """
-        return self.tr('LF Topography')
+        return self.tr('LF Documents')
 
     def groupId(self):
         """
         Returns the unique ID of the group this algorithm belongs
         to.
         """
-        return 'lf_topography'
+        return 'lf_documents'
 
     def shortHelpString(self):
         """
