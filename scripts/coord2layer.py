@@ -104,7 +104,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.LAYER,
-                self.tr('Adjusted Points')
+                self.tr('Point Layer')
             )
         )
     

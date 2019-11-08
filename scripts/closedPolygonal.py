@@ -129,19 +129,19 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
             )
         )
         
-        # OUTPUT
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(
-                self.POINTS,
-                self.tr('Adjusted Points')
-            )
-        )
-        
         self.addParameter(
             QgsProcessingParameterCrs(
                 self.CRS, 
                 self.tr('Grid CRS'), 
                 'ProjectCrs'
+            )
+        )
+        
+        # OUTPUT
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                self.POINTS,
+                self.tr('Adjusted Points')
             )
         )
         
