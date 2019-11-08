@@ -362,8 +362,12 @@ calculados.<o:p></o:p></p>
         pnts = {}
 
         for feat in vertices.getFeatures():
-            pnts[feat['ordem']] = coordinateTransformer.transform(feat.geometry().asMultiPoint()[0])
-
+            geom = feat.geometry()
+            if geom.isMultipart():
+                pnts[feat['ordem']] = coordinateTransformer.transform(geom.asMultiPoint()[0])
+            else:
+                pnts[feat['ordem']] = coordinateTransformer.transform(geom.asPoint())
+        
         # Cálculo dos Azimutes e Distâncias
         tam = len(pnts)
         Az_lista, Dist = [], []
@@ -387,8 +391,9 @@ calculados.<o:p></o:p></p>
 
         for item in itens:
                 self.texto_inicial = self.texto_inicial.replace(item, itens[item])
-
+        
         LINHAS = self.texto_inicial
+        #feedback.pushInfo(str(ListaCont))
         for w,t in enumerate(ListaCont):
             linha0 = self.texto_var1
             itens = {'[Vn]': 'P-' + str(t[0]+1).zfill(3),
