@@ -132,7 +132,7 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterCrs(
                 self.CRS, 
-                self.tr('Grid CRS'), 
+                self.tr('Coordinates Reference System'), 
                 'ProjectCrs'
             )
         )

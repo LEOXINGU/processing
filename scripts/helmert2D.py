@@ -419,7 +419,7 @@ Cartographic Engineer<br>
                      '[d]': str(d),
                      '[theta]': str(theta),
                      '[S]': str(S),
-                     '[sigma]': str(np.sqrt(sigma2[0,0]))
+                     '[sigma]': str(sigma2[0,0])
                      }
         for item in itens:
                 texto_final = texto_final.replace(item, itens[item])
