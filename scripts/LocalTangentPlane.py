@@ -58,7 +58,8 @@ class LocalTangentPlane(QgsProcessingAlgorithm):
 This algorithm transforms coordinates between the following reference systems:
 - geodetic <b>(longitude, latitude, h)</b>;
 - geocentric or ECEF <b>(X, Y, Z)</b>; and
-- topocentric in a local tangent plane <b>(E, N, U)</b>.'''
+- topocentric in a local tangent plane <b>(E, N, U)</b>.
+Default values for origin coordinates can be applied to Recife / Brazil'''
     )
 
     def initAlgorithm(self, config=None):
@@ -132,7 +133,8 @@ This algorithm transforms coordinates between the following reference systems:
             QgsProcessingParameterNumber(
                 self.LON_0,
                 self.tr('Origin Longitude'),
-                type=1 #Double = 1 and Integer = 0
+                type =1, #Double = 1 and Integer = 0
+                defaultValue = -34.95151641666667
             )
         )
         
@@ -140,7 +142,8 @@ This algorithm transforms coordinates between the following reference systems:
             QgsProcessingParameterNumber(
                 self.LAT_0,
                 self.tr('Origin Latitude'),
-                type=1 #Double = 1 and Integer = 0
+                type=1, #Double = 1 and Integer = 0
+                defaultValue = -8.050963805555556
             )
         )
         
@@ -148,7 +151,8 @@ This algorithm transforms coordinates between the following reference systems:
             QgsProcessingParameterNumber(
                 self.H_0,
                 self.tr('Origin Elipsoid Height (h)'),
-                type=1 #Double = 1 and Integer = 0
+                type=1, #Double = 1 and Integer = 0
+                defaultValue = 4.217
             )
         )
         
