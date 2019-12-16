@@ -321,7 +321,6 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
         
         # Compensação do Erro de Fechamento Angular
         C_alfa = - E_alfa/n
-        C_alfa = 0 ################################################## APAGAR
         SomaAng_Comp = 0
         for est in readings:
             readings[est]['angle_comp'] = readings[est]['angle'] + C_alfa
