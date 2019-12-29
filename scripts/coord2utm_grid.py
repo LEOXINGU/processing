@@ -20,6 +20,7 @@ from qgis.core import *
 import processing
 from numpy import sign, array
 from math import floor, modf
+import locale
 
 
 class Coord2UTMGrid(QgsProcessingAlgorithm):
@@ -29,9 +30,26 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
     SCALE = 'SCALE'
     FRAME = 'FRAME'
     CRS = 'CRS'
-
+    LOC = locale.getdefaultlocale()[0]
+    
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate('Processing', self.tradutor(string))
+        
+    def tradutor(self, string):
+        DIC_en_pt = {'Coordinates to UTM Grid': 'Coordenadas para Moldura UTM',
+                            'LF Cartography': 'LF Cartografia',
+                            'Scale': 'Escala',
+                            'Grid CRS': 'SRC da Moldura',
+                            'UTM Grid': 'Moldura UTM',
+                            'scale': 'escala'
+                            }
+        if self.LOC == 'pt_BR':
+            if string in DIC_en_pt:
+                return DIC_en_pt[string]
+            else:
+                return string
+        else:
+            return string
 
     def createInstance(self):
         return Coord2UTMGrid()
@@ -45,11 +63,11 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
 
     def group(self):
 
-        return self.tr('LF Cartographer')
+        return self.tr('LF Cartography')
 
     def groupId(self):
 
-        return 'lf_cartographer'
+        return 'lf_cartography'
 
     def shortHelpString(self):
 
@@ -538,6 +556,7 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
         Fields = QgsFields()
         Fields.append(QgsField('inom', QVariant.String))
         Fields.append(QgsField('mi', QVariant.String))
+        Fields.append(QgsField(self.tr('scale'), QVariant.Int))
         GeomType = QgsWkbTypes.Polygon
         
         (sink2, dest2_id) = self.parameterAsSink(
@@ -584,7 +603,7 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
         inom_list = inom.split('-')
         inom100k = ''
         resto = ''
-        att = [inom, None]
+        att = [inom, None, escala]
         if len(inom_list) >= 5:
             for k in range(5):
                 inom100k += inom_list[k]+'-'

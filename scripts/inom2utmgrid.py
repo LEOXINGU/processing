@@ -20,7 +20,7 @@ from qgis.core import *
 import processing
 from numpy import sign, array
 from math import floor, modf
-
+import locale
 
 class Inom2utmGrid(QgsProcessingAlgorithm):
 
@@ -28,9 +28,28 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
     TYPE = 'TYPE'
     FRAME = 'FRAME'
     CRS = 'CRS'
-
+    LOC = locale.getdefaultlocale()[0]
+    
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate('Processing', self.tradutor(string))
+        
+    def tradutor(self, string):
+        DIC_en_pt = {'Name to UTM Grid': 'Nome para Moldura UTM',
+                            'LF Cartography': 'LF Cartografia',
+                            'Scale': 'Escala',
+                            'Name': 'Nome',
+                            'Type': 'Tipo',
+                            'Grid CRS': 'SRC da Moldura',
+                            'UTM Grids': 'Molduras UTM',
+                            'scale': 'escala'
+                            }
+        if self.LOC == 'pt_BR':
+            if string in DIC_en_pt:
+                return DIC_en_pt[string]
+            else:
+                return string
+        else:
+            return string
 
     def createInstance(self):
         
@@ -46,11 +65,11 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
 
     def group(self):
 
-        return self.tr('LF Cartographer')
+        return self.tr('LF Cartography')
 
     def groupId(self):
 
-        return 'lf_cartographer'
+        return 'lf_cartography'
 
     def shortHelpString(self):
 
@@ -184,6 +203,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         Fields = QgsFields()
         Fields.append(QgsField('inom', QVariant.String))
         Fields.append(QgsField('mi', QVariant.String))
+        Fields.append(QgsField(self.tr('scale'), QVariant.Int))
         GeomType = QgsWkbTypes.Polygon
         
         (sink, dest_id) = self.parameterAsSink(
@@ -236,6 +256,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
             d_lon = 6.0
             d_lat = 4.0
             coord = [[QgsPointXY(lon, lat), QgsPointXY(lon, lat+d_lat), QgsPointXY(lon+d_lon, lat+d_lat), QgsPointXY(lon+d_lon, lat), QgsPointXY(lon, lat)]]
+            escala = 1e6
         else:
             dic_delta  =  {'500k': {'Y':[0, 0], 'V':[0, 2.0], 'X':[3.0, 2.0], 'Z':[3.0, 0]},
                                 '250k': {'C':[0, 0], 'A':[0, 1.0], 'B':[1.5, 1.0], 'D':[1.5, 0]},
@@ -263,6 +284,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
                           QgsPointXY(lon+d_lon, lat+d_lat), 
                           QgsPointXY(lon+d_lon, lat),
                           QgsPointXY(lon          , lat)]]
+            escala = int(escalas[k][:-1])*1000
         
         feat = QgsFeature()
         geom = QgsGeometry.fromPolygonXY(coord)
@@ -277,14 +299,14 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
                 for k in range(1,len(lista)):
                     resto += lista[k] +'-'
                 inom += '-' + resto[:-1]
-            att = [inom, mi]
+            att = [inom, mi, escala]
         else:
             inom = nome
             mi = None
             for MI, val in dicionario.items():
                 if val == inom:
                     mi = MI
-            att = [inom, mi]
+            att = [inom, mi, escala]
         feedback.pushInfo('INOM: {} e MI: {}'.format(inom, mi))
         feat.setGeometry(geom)
         feat.setAttributes(att)
