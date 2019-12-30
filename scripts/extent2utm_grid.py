@@ -20,7 +20,6 @@ from qgis.core import *
 import processing
 from numpy import sign, array, arange
 from math import floor, modf
-import locale
 
 class Extent2UTMGrid(QgsProcessingAlgorithm):
 
@@ -28,7 +27,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
     SCALE = 'SCALE'
     FRAME = 'FRAME'
     CRS = 'CRS'
-    LOC = locale.getdefaultlocale()[0]
+    LOC = QgsApplication.locale()
     
     def tr(self, string):
         return QCoreApplication.translate('Processing', self.tradutor(string))
@@ -42,7 +41,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                             'UTM Grids': 'Molduras UTM',
                             'scale': 'escala'
                             }
-        if self.LOC == 'pt_BR':
+        if self.LOC == 'pt':
             if string in DIC_en_pt:
                 return DIC_en_pt[string]
             else:
@@ -69,8 +68,10 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         return 'lf_cartography'
 
     def shortHelpString(self):
-
-        return self.tr("This algorithm returns the polygons correspondent to the <b>frame</b> related to a scale of the Brazilian Mapping System from Project Extent.")
+        if self.LOC == 'pt':
+            return "Este algoritmo retorna os polígonos correspondentes às molduras relacionados a uma escala do Mapeamento Sistemático Brasileiro considerando uma extensão específica definida pelo usuário."
+        else:
+            return self.tr("This algorithm returns the polygons correspondent to the <b>frames</b> related to a scale of the Brazilian Mapping System from a specific <b>extent</b> definied by the user.")
 
     def initAlgorithm(self, config=None):
         

@@ -20,7 +20,7 @@ from qgis.core import *
 import processing
 from numpy import sign, array
 from math import floor, modf
-import locale
+
 
 
 class Coord2UTMGrid(QgsProcessingAlgorithm):
@@ -30,7 +30,7 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
     SCALE = 'SCALE'
     FRAME = 'FRAME'
     CRS = 'CRS'
-    LOC = locale.getdefaultlocale()[0]
+    LOC = QgsApplication.locale()
     
     def tr(self, string):
         return QCoreApplication.translate('Processing', self.tradutor(string))
@@ -43,7 +43,7 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
                             'UTM Grid': 'Moldura UTM',
                             'scale': 'escala'
                             }
-        if self.LOC == 'pt_BR':
+        if self.LOC == 'pt':
             if string in DIC_en_pt:
                 return DIC_en_pt[string]
             else:

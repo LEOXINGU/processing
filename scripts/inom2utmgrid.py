@@ -20,7 +20,6 @@ from qgis.core import *
 import processing
 from numpy import sign, array
 from math import floor, modf
-import locale
 
 class Inom2utmGrid(QgsProcessingAlgorithm):
 
@@ -28,7 +27,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
     TYPE = 'TYPE'
     FRAME = 'FRAME'
     CRS = 'CRS'
-    LOC = locale.getdefaultlocale()[0]
+    LOC = QgsApplication.locale()
     
     def tr(self, string):
         return QCoreApplication.translate('Processing', self.tradutor(string))
@@ -43,7 +42,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
                             'UTM Grids': 'Molduras UTM',
                             'scale': 'escala'
                             }
-        if self.LOC == 'pt_BR':
+        if self.LOC == 'pt':
             if string in DIC_en_pt:
                 return DIC_en_pt[string]
             else:
