@@ -567,8 +567,8 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         d_lon = deltas[:, escalas.index(escala)][0]
         d_lat = deltas[:, escalas.index(escala)][1]
         
-        LON = arange(lon_min + 1e-10, lon_max + 1e-10 +d_lon, d_lon)
-        LAT = arange(lat_min + 1e-10, lat_max+ 1e-10 +d_lat, d_lat)
+        LON = arange(lon_min + 1e-10, lon_max + 1e-10 + d_lon, d_lon)
+        LAT = arange(lat_min + 1e-10, lat_max+ 1e-10 + d_lat, d_lat)
         
         Percent = 100.0/(len(LON)*len(LAT))
         current = 0

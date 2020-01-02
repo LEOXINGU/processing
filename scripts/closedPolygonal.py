@@ -71,7 +71,7 @@ class ClosedPolygonal(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.E_0,
                 self.tr('E (origin)'),
-                type = 1,
+                type = 1, # float = 1 and integer = 0
                 defaultValue = 1000.0
             )
         )

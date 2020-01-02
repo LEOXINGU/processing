@@ -24,9 +24,7 @@ from math import floor, modf
 
 
 class Coord2UTMGrid(QgsProcessingAlgorithm):
-
-    LONGITUDE = 'LONGITUDE'
-    LATITUDE = 'LATITUDE'
+    POINT = 'POINT'
     SCALE = 'SCALE'
     FRAME = 'FRAME'
     CRS = 'CRS'
@@ -75,20 +73,11 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         
-        # 'INPUTS'      
+        # 'INPUTS'
         self.addParameter(
-            QgsProcessingParameterNumber(
-                self.LONGITUDE,
-                self.tr('Longitude'),
-                type=1 #Double = 1 and Integer = 0
-            )
-        )
-        
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                self.LATITUDE,
-                self.tr('Latitutde'),
-                type=1 #Double = 1 and Integer = 0
+            QgsProcessingParameterPoint(
+                self.POINT,
+                self.tr('Point')
             )
         )
         
@@ -509,18 +498,22 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
         # Retrieve the feature source and sink. The 'dest_id' variable is used
         # to uniquely identify the feature sink, and must be included in the
         # dictionary returned by the processAlgorithm function.
-        
-        lon = self.parameterAsDouble(
+        ponto = self.parameterAsPoint(
             parameters,
-            self.LONGITUDE,
+            self.POINT,
             context
         )
-        
-        lat = self.parameterAsDouble(
-            parameters,
-            self.LATITUDE,
-            context
-        )
+        ProjectCRS = QgsProject.instance().crs()
+        if not ProjectCRS.isGeographic():
+            crsGeo = QgsCoordinateReferenceSystem(ProjectCRS.geographicCrsAuthId())
+            coordinateTransformer = QgsCoordinateTransform()
+            coordinateTransformer.setDestinationCrs(crsGeo)
+            coordinateTransformer.setSourceCrs(ProjectCRS)
+            PontoGeo = self.reprojectPoints(QgsGeometry(QgsPoint(ponto.x(), ponto.y())), coordinateTransformer)
+            ponto = PontoGeo.asPoint()
+            lon, lat = ponto.x(), ponto.y()
+        else:
+            lon, lat = ponto.x(), ponto.y()
         
         lon, lat = lon+1e-10, lat+1e-10 # avoid grid intersections
         
