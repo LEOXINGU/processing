@@ -17,7 +17,6 @@ __copyright__ = '(C) 2019, Leandro França'
 
 from PyQt5.QtCore import QCoreApplication, QVariant
 from qgis.core import *
-import processing
 from numpy import sign, array
 from math import floor, modf
 
