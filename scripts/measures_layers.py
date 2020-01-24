@@ -35,7 +35,16 @@ class MeasureLayers(QgsProcessingAlgorithm):
                             'Square Meters (m²)': 'Metros quadrados (m²)',
                             'Distance Units': 'Unidade de distância',
                             'Area Units': 'Unidade de área',
-                            'Precision': 'Número de casas decimais'
+                            'Precision': 'Número de casas decimais',
+                            'length': 'comprimento',
+                            'perimeter': 'perímetro',
+                            'area': 'área',
+                            'Feets (ft)': 'Pés (ft)',
+                            'Yards (yd)': 'Jardas (yd)',
+                            'Kilometers (Km)': 'Quilômetros (Km)',
+                            'Miles (mi)': 'Milhas (mi)',
+                            'Square Meters (m²)': 'Metros quadrados (m²)',
+                            'Square Kilometers (Km²)': 'Quilômetros quadrados (Km²)'                   
                             }
         if self.LOC == 'pt':
             if string in DIC_en_pt:
@@ -67,9 +76,15 @@ class MeasureLayers(QgsProcessingAlgorithm):
             return self.tr("This tool calculates in virtual fields the lengths of features of the line type and the perimeter and area of features of the polygon type for all layers.")
         
     def initAlgorithm(self, config=None):
-        units_dist = [self.tr('Meters (m)')
+        units_dist = [self.tr('Meters (m)'),
+                      self.tr('Feets (ft)'),
+                      self.tr('Yards (yd)'),
+                      self.tr('Kilometers (Km)'),
+                      self.tr('Miles (mi)')
                ]
-        units_area = [self.tr('Square Meters (m²)')
+        units_area = [self.tr('Square Meters (m²)'),
+                      self.tr('Hectares (ha)'),
+                      self.tr('Square Kilometers (Km²)')
                ]
                
         self.addParameter(
@@ -113,14 +128,23 @@ class MeasureLayers(QgsProcessingAlgorithm):
             context
         )
         
-        # Transformação de unidades
-        unid_transf = [1.0]
-        unidade_dist = unid_transf[units_dist]
-        unidade_area = unid_transf[units_dist]**2
+        precisao = self.parameterAsInt(
+            parameters,
+            self.PRECISION,
+            context
+        )
         
-        field_length = QgsField( 'length', QVariant.Double, "numeric", 14, 3)
-        field_perimeter = QgsField( 'perimeter', QVariant.Double, "numeric", 14, 3)
-        field_area = QgsField( 'area', QVariant.Double, "numeric", 14, 3)
+        # Transformação de unidades
+        unid_transf_dist = [1, 0.3048, 0.9144, 1000, 621.4] 
+        unid_abb_dist = ['m', 'ft', 'yd', 'Km', 'mi']
+        unid_transf_area = [1.0, 1e4, 1e6]
+        unid_abb_area = ['m²', 'ha', 'Km²']
+        unidade_dist = unid_transf_dist[units_dist]
+        unidade_area = unid_transf_area[units_area]
+        
+        field_length = QgsField( self.tr('length')+'_'+unid_abb_dist[units_dist], QVariant.Double, "numeric", 14, precisao)
+        field_perimeter = QgsField( self.tr('perimeter')+'_'+unid_abb_dist[units_dist], QVariant.Double, "numeric", 14, precisao)
+        field_area = QgsField( self.tr('area')+'_'+unid_abb_area[units_area], QVariant.Double, "numeric", 14, precisao)
         
         camadas = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
         num_camadas = len(camadas)
@@ -134,10 +158,10 @@ class MeasureLayers(QgsProcessingAlgorithm):
             if layer.type()==0:# VectorLayer
                 # check the layer geometry type
                 if layer.geometryType() == QgsWkbTypes.LineGeometry:
-                    layer.addExpressionField('$length'+'*'+str(unidade_dist), field_length)
+                    layer.addExpressionField('$length'+'/'+str(unidade_dist), field_length)
                 if layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-                    layer.addExpressionField('$perimeter'+'*'+str(unidade_dist), field_perimeter)
-                    layer.addExpressionField('$area'+'*'+str(unidade_area), field_area)
+                    layer.addExpressionField('$perimeter'+'/'+str(unidade_dist), field_perimeter)
+                    layer.addExpressionField('$area'+'/'+str(unidade_area), field_area)
             feedback.setProgress(int(current * total))
         
         return {}
