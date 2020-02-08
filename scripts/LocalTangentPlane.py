@@ -45,7 +45,7 @@ class LocalTangentPlane(QgsProcessingAlgorithm):
         return 'localtangentplane'
 
     def displayName(self):
-        return self.tr('Local Tangent Plane Transform')
+        return self.tr('Local Geodetic System Transform')
 
     def group(self):
         return self.tr('LF Surveyor')
@@ -134,7 +134,7 @@ Default values for origin coordinates can be applied to Recife / Brazil'''
                 self.LON_0,
                 self.tr('Origin Longitude'),
                 type =1, #Double = 1 and Integer = 0
-                defaultValue = -34.95151641666667
+                defaultValue = -34.94495050374325018
             )
         )
         
@@ -143,7 +143,7 @@ Default values for origin coordinates can be applied to Recife / Brazil'''
                 self.LAT_0,
                 self.tr('Origin Latitude'),
                 type=1, #Double = 1 and Integer = 0
-                defaultValue = -8.050963805555556
+                defaultValue = -8.04943375547597206
             )
         )
         
@@ -152,7 +152,7 @@ Default values for origin coordinates can be applied to Recife / Brazil'''
                 self.H_0,
                 self.tr('Origin Elipsoid Height (h)'),
                 type=1, #Double = 1 and Integer = 0
-                defaultValue = 4.217
+                defaultValue = 2.599625
             )
         )
         

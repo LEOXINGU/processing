@@ -111,7 +111,8 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             QgsProcessingParameterString(
                 self.DIST,
                 self.tr('Distances (d) list'),
-                defaultValue = '110.426, 72.375, 186.615, 125.153, 78.235, 130.679, 110.854'
+                defaultValue = '110.426, 72.375, 186.615, 125.153, 78.235, 130.679, 110.854',
+                multiLine = True
             )
         )
         
@@ -119,7 +120,8 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             QgsProcessingParameterString(
                 self.ANGS,
                 self.tr('Angles (angs) list'),
-                defaultValue = '''75°23'34", 202°4'36", 56°51'15", 283°31'32", 242°57'31", 185°5'12", 94°11'35", 266°13'20" '''
+                defaultValue = '''75°23'34", 202°4'36", 56°51'15", 283°31'32", 242°57'31", 185°5'12", 94°11'35", 266°13'20" ''',
+                multiLine = True
             )
         )
         

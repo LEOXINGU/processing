@@ -29,9 +29,30 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
     BOOL = 'BOOL'
     CRS = 'CRS'
     LAYER = 'LAYER'
-    
+    LOC = QgsApplication.locale()
+
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate('Processing', self.tradutor(string))
+        
+    def tradutor(self, string):
+        DIC_en_pt = {'Coordinates to Layer': 'Coordenadas para camada',
+                            'LF Effortlessness': 'LF Mão na roda',
+                            'Table with coordinates': 'Tabela com coordenadas',
+                            'X Coordinate': 'Coordenada X',
+                            'Y Coordinate': 'Coordenada Y',
+                            'Z Coordinate': 'Coordenada Z',
+                            'Create PointZ': 'Criar PointZ',
+                            'CRS': 'SRC',
+                            'Point Layer': 'Camada de Pontos',
+                            'Operation completed successfully!': 'Operação concluída com sucesso!',               
+                            }
+        if self.LOC == 'pt':
+            if string in DIC_en_pt:
+                return DIC_en_pt[string]
+            else:
+                return string
+        else:
+            return string
 
     def createInstance(self):
         return CoordinatesToLayer()
@@ -43,20 +64,23 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         return self.tr('Coordinates to Layer')
 
     def group(self):
-        return self.tr('LF Surveyor')
+        return self.tr('LF Effortlessness')
 
     def groupId(self):
-        return 'lf_surveyor'
+        return 'lf_effortlessness'
 
     def shortHelpString(self):
-        return self.tr("Generates a <b>point layer</b> from a coordinate table, whether it comes from a Microsoft <b>Excel</b> spreadsheet, Libre Office <b>Calc</b>, or even attributes from another layer.")
+        if self.LOC == 'pt':
+            return "Geração de uma camada de pontos a partir das coordenadas preenchidas em uma planilha do Excel ou Open Document Spreadsheet (ODS), ou até mesmo, a partir dos atributos de outra camada."
+        else:
+            return self.tr("Generates a <b>point layer</b> from a coordinate table, whether it comes from a Microsoft <b>Excel</b> spreadsheet, Open Document Spreadsheet (ODS), or even attributes from another layer.")
 
     def initAlgorithm(self, config=None):
         # INPUT
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.TABLE,
-                self.tr('Table of observations'),
+                self.tr('Table with coordinates'),
                 [QgsProcessing.TypeVector]
             )
         )
@@ -97,7 +121,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterCrs(
                 self.CRS, 
-                self.tr('Grid CRS'), 
+                self.tr('CRS'), 
                 'ProjectCrs'))
         
         # OUTPUT
