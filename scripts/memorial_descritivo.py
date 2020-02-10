@@ -21,13 +21,15 @@ __author__ = 'Leandro França'
 __date__ = 'Sept 22'
 __copyright__ = '(C) 2019, Leandro França'
 
+from PyQt5.QtCore import QCoreApplication
 from qgis.core import (QgsProcessing,
                        QgsProject,
                        QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingException,
-                       QgsProcessingParameterFileDestination)
+                       QgsProcessingParameterFileDestination,
+                       QgsApplication)
 from processing.algs.qgis.QgisAlgorithm import QgisAlgorithm
 from math import atan, pi, sqrt
 import math
@@ -42,6 +44,8 @@ class MemorialDescritivo(QgisAlgorithm):
     INPUT1 = 'INPUT1'
     INPUT2 = 'INPUT2'
     INPUT3 = 'INPUT3'
+    
+    LOC = QgsApplication.locale()
     
     texto_inicial = '''
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -178,7 +182,19 @@ calculados.<o:p></o:p></p>
 </body>
 </html>
 '''
+    def translate(self, string):
+        return QCoreApplication.translate('Processing', string)
 
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
+            
     def createInstance(self):
         # Must return a new copy of your algorithm.
         return MemorialDescritivo()
@@ -193,13 +209,13 @@ calculados.<o:p></o:p></p>
         """
         Returns the translated algorithm name.
         """
-        return self.tr('Memorial Descritivo')
+        return self.tr('Descriptive Memorial', 'Memorial Descritivo')
 
     def group(self):
         """
         Returns the name of the group this algorithm belongs to.
         """
-        return self.tr('LF Documents')
+        return self.tr('LF Documents', 'LF Documentos')
 
     def groupId(self):
         """

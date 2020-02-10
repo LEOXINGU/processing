@@ -31,7 +31,8 @@ from qgis.core import (QgsProcessing,
                        QgsWkbTypes,
                        QgsFeature,
                        QgsGeometry,
-                       QgsPoint
+                       QgsPoint,
+                       QgsApplication
                        )
 from numpy import radians, arctan, pi, sin, cos, matrix, sqrt, degrees, array, diag, ones, zeros, floor
 from numpy.linalg import norm, pinv, inv
@@ -51,9 +52,21 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
     OUTPUT = 'OUTPUT'
     HTML = 'HTML'
     rho = 180*3600/pi
-    
-    def tr(self, string):
+
+    LOC = QgsApplication.locale()
+
+    def translate(self, string):
         return QCoreApplication.translate('Processing', string)
+
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
 
     def createInstance(self):
         return TraverseAdjustment()
@@ -65,16 +78,16 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         return self.tr('Traverse Adjustment')
 
     def group(self):
-        return self.tr('LF Surveyor')
+        return self.tr('LF Survey', 'LF Agrimensura')
 
     def groupId(self):
-        return 'lf_surveyor'
+        return 'lf_survey'
 
     def shortHelpString(self):
         return self.tr("""This algorithm performs the traverse adjustments of a framed polygonal by least squares method, where  the distances, angles, and directions observations are adjusted simultaneously, providing the most probable values for the given data set.  Futhermore, the observations can be rigorously weighted based on their estimated errors and adjusted accordingly.""")
-        
+
     def initAlgorithm(self, config=None):
-        # INPUT        
+        # INPUT
         self.addParameter(
             QgsProcessingParameterString(
                 self.A,
@@ -82,7 +95,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = '150000, 250000'
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterString(
                 self.B,
@@ -90,7 +103,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = '149922.119, 249875.269'
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterString(
                 self.Y,
@@ -98,7 +111,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = '150347.054, 249727.281'
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterString(
                 self.Z,
@@ -106,7 +119,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = '150350.201, 249622.000'
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterString(
                 self.DIST,
@@ -115,7 +128,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 multiLine = True
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterString(
                 self.ANGS,
@@ -124,7 +137,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 multiLine = True
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.DIST_PREC,
@@ -133,7 +146,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = 3
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.PPM,
@@ -142,7 +155,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = 3
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.ANGS_PREC,
@@ -151,13 +164,13 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 defaultValue = 10
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterCrs(
-                self.CRS, 
-                self.tr('Grid CRS'), 
+                self.CRS,
+                self.tr('Grid CRS'),
                 'ProjectCrs'))
-        
+
         # OUTPUT
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -165,7 +178,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 self.tr('Adjusted Points')
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 'HTML',
@@ -173,7 +186,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 self.tr('HTML files (*.html)')
             )
         )
-    
+
     def String2NumberList (self, txt):
         while ' ' in txt:
             txt = txt.replace(' ', '')
@@ -182,13 +195,13 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         for item in Splited:
             lista += [float(item)]
         return lista
-    
+
     def String2StringList(self, txt):
         while ' ' in txt:
             txt = txt.replace(' ', '')
         Splited = txt.split(',')
         return Splited
-    
+
     def dms2dd(self, txt):
         txt = txt.replace(' ','').replace(',','.')
         newtxt =''
@@ -201,11 +214,11 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         if len(lista) != 3: # GMS
             return None
         else:
-            if '-' in lista[0]: 
+            if '-' in lista[0]:
                 return -1*(abs(float(lista[0])) + float(lista[1])/60 + float(lista[2])/3600)
             else:
                 return float(lista[0]) + float(lista[1])/60 + float(lista[2])/3600
-    
+
     def dd2dms(self, dd, n_digits):
         if dd != 0:
             graus = int(floor(abs(dd)))
@@ -225,7 +238,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             return texto
         else:
             return "0°00'" + ('{:0' + str(3+n_digits) + '.' + str(n_digits) + 'f}').format(0)
-    
+
     def str2HTML(self, texto):
         if texto:
             dicHTML = {'Á': '&Aacute;',	'á': '&aacute;',	'Â': '&Acirc;',	'â': '&acirc;',	'À': '&Agrave;',	'à': '&agrave;',	'Å': '&Aring;',	'å': '&aring;',	'Ã': '&Atilde;',	'ã': '&atilde;',	'Ä': '&Auml;',	'ä': '&auml;',	'Æ': '&AElig;',	'æ': '&aelig;',	'É': '&Eacute;',	'é': '&eacute;',	'Ê': '&Ecirc;',	'ê': '&ecirc;',	'È': '&Egrave;',	'è': '&egrave;',	'Ë': '&Euml;',	'ë': '&Euml;',	'Ð': '&ETH;',	'ð': '&eth;',	'Í': '&Iacute;',	'í': '&iacute;',	'Î': '&Icirc;',	'î': '&icirc;',	'Ì': '&Igrave;',	'ì': '&igrave;',	'Ï': '&Iuml;',	'ï': '&iuml;',	'Ó': '&Oacute;',	'ó': '&oacute;',	'Ô': '&Ocirc;',	'ô': '&ocirc;',	'Ò': '&Ograve;',	'ò': '&ograve;',	'Ø': '&Oslash;',	'ø': '&oslash;',	'Ù': '&Ugrave;',	'ù': '&ugrave;',	'Ü': '&Uuml;',	'ü': '&uuml;',	'Ç': '&Ccedil;',	'ç': '&ccedil;',	'Ñ': '&Ntilde;',	'ñ': '&ntilde;',	'Ý': '&Yacute;',	'ý': '&yacute;',	'"': '&quot;', '”': '&quot;',	'<': '&lt;',	'>': '&gt;',	'®': '&reg;',	'©': '&copy;',	'\'': '&apos;', 'ª': '&ordf;', 'º': '&ordm', '°':'&deg;'}
@@ -235,7 +248,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             return texto
         else:
             return ''
-    
+
     def azimute(self, A,B):
         # Cálculo dos Azimutes entre dois pontos (Vetor AB origem A extremidade B)
         if ((B[0]-A[0])>=0 and (B[1]-A[1])>0): #1º quadrante
@@ -275,7 +288,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         if dAz < 0:
             dAz = 2*pi + Az_fim - Az_ini
         return dAz
-    
+
     # F(Xo) para distâncias:
     def F_X_d(self, pnts, B, Y):
         F_X = [[sqrt((B[0]-pnts[0][0])**2 + (B[1]-pnts[0][1])**2)]]
@@ -300,7 +313,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             F_X += [[3600*degrees(self.DifAz(self.azimute(pnt1,pnt0)[0], self.azimute(pnt1, pnt2)[0]))]]
         F_X += [[3600*degrees(self.DifAz(self.azimute(Y, pnts2[-2])[0], self.azimute(Y, Z)[0]))]]
         return F_X
-    
+
     def Jacobiana_d(self, pnts, B, Y, n_d, n_par):
         Jac = zeros([n_d, n_par])
         pnts2 = [B] + pnts + [Y]
@@ -348,37 +361,37 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                 elif k == 2:
                     Jac[2, 0:2] = linha[:2]
         return list(Jac)
-    
+
     def processAlgorithm(self, parameters, context, feedback):
-        
+
         A = self.parameterAsString(
             parameters,
             self.A,
             context
         )
         A = self.String2NumberList(A)
-        
+
         B = self.parameterAsString(
             parameters,
             self.B,
             context
         )
         B = self.String2NumberList(B)
-        
+
         Y = self.parameterAsString(
             parameters,
             self.Y,
             context
         )
         Y = self.String2NumberList(Y)
-        
+
         Z = self.parameterAsString(
             parameters,
             self.Z,
             context
         )
         Z = self.String2NumberList(Z)
-        
+
         d = self.parameterAsString(
             parameters,
             self.DIST,
@@ -386,7 +399,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         )
         d = self.String2NumberList(d)
         feedback.pushInfo('Distances list: ' + str(d))
-        
+
         angs = self.parameterAsString(
             parameters,
             self.ANGS,
@@ -398,34 +411,34 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         for ang in angs:
             lista += [3600*float(self.dms2dd(ang))]
         angs = lista
-        
-        
+
+
         dist_precision = self.parameterAsDouble(
             parameters,
             self.DIST_PREC,
             context
         )
         dist_precision *= 1e-3 # milimeter to meters
-        
+
         ppm = self.parameterAsDouble(
             parameters,
             self.PPM,
             context
         )
         ppm *= 1e-6 # ppm
-        
+
         ang_precision = self.parameterAsDouble(
             parameters,
             self.ANGS_PREC,
             context
         )
-        
+
         CRS = self.parameterAsCrs(
             parameters,
             self.CRS,
             context
         )
-        
+
         # OUTPUT
         Fields = QgsFields()
         Fields.append(QgsField('id', QVariant.Int))
@@ -440,20 +453,20 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         )
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
-        
+
         html_output = self.parameterAsFileOutput(
-            parameters, 
-            self.HTML, 
+            parameters,
+            self.HTML,
             context
         )
-        
+
         # Precisões
         sd_d = list(dist_precision + array(d)*ppm)
         sd_a = list(ang_precision*ones(len(angs)))
-        
+
         # Observações
         Lb = matrix(d + angs).reshape([len(d)+len(angs),1])
-        
+
         # Cálculo de aproximações inicias
         Xo = []
         pnts = []
@@ -468,7 +481,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             Az0 = -pi/2 - ang
             p0 = (x, y)
         pnts_ini = pnts
-        
+
         # Cálculo do Erro de Fechamento Linear
         ang = pi/2 - Az0 - radians(angs[-2]/3600)
         x = p0[0] + d[-1]*cos(ang)
@@ -477,7 +490,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
         Erro = array(Y_)-array(Y)
         feedback.pushInfo('Linear closure error: ' + str(round(norm(array(Y_)-array(Y)),4)) + ' m')
         feedback.pushInfo('E and N errors: ' + str((round(Erro[0],4),round(Erro[1],4))) + ' m')
-        
+
         # Cálculo do Erro de Azimute
         Az0 = self.azimute(B,A)[0]
         for k in range(len(angs)):
@@ -490,21 +503,21 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
             else:
                Az=Az-2*pi
         feedback.pushInfo('Angular closure error: ' + str(round(3600*(degrees(Az - self.azimute(Y,Z)[0])),2)) + ' sec')
-        
+
         # Dados para matrix jacobiana
         n_par = len(pnts)*2
         n_d = len(d)
         n_angs = len(angs)
         n_obs = n_d + n_angs
-        
+
         # Matriz Peso
         P = matrix(diag(array(sd_d + sd_a)**(-2)))
-        
+
         # Cálculo iterativo das Coordenadas (Parâmetros)
         cont = 0
         cont_max = 10
         tol = 1e-4
-        
+
         while cont < cont_max:
             F_Xo = self.F_X_d(pnts, B, Y) + self.F_X_a(pnts, A, B, Y, Z)
             J = matrix(list(self.Jacobiana_d(pnts, B, Y, n_d, n_par)) + list(self.Jacobiana_a(pnts, A, B, Y, Z, n_angs, n_par)))
@@ -521,7 +534,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
                     pnts += [(float(Xo[2*k][0]), float(Xo[2*k+1][0]))]
             else:
                 break
-        
+
         # Resíduos
         V = Lb - F_Xo
 
@@ -545,7 +558,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
 
         # MVC dos resíduos
         SigmaV = SigmaLa + SigmaLb
-        
+
 
         feature = QgsFeature()
         total = 100.0 /len(pnts)  if len(pnts) else 0
@@ -670,7 +683,7 @@ class TraverseAdjustment(QgsProcessingAlgorithm):
       </td>
     </tr>
 '''
-        
+
         texto = '''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
@@ -817,7 +830,7 @@ Deviation<o:p></o:p></span></p>
 </body>
 </html>
 '''
-        
+
         # Aproximação inicial
         cont = 0
         table1 = ''
@@ -835,7 +848,7 @@ Deviation<o:p></o:p></span></p>
             for item in itens:
                 tableRowN = tableRowN.replace(item, itens[item])
             table1 += tableRowN
-        
+
         # Ajustamento
         cont = 0
         table2 = ''
@@ -858,7 +871,7 @@ Deviation<o:p></o:p></span></p>
             for item in itens:
                 tableRowN = tableRowN.replace(item, itens[item])
             table2 += tableRowN
-        
+
         # Observações
         table3 = ''
         SD = SigmaLa.diagonal()
@@ -894,7 +907,7 @@ Deviation<o:p></o:p></span></p>
             for item in itens:
                 tableRowN = tableRowN.replace(item, itens[item])
             table3 += tableRowN
-        
+
         # Documento prinicipal
         itens  = {
                          '[table1]': table1,
@@ -904,12 +917,12 @@ Deviation<o:p></o:p></span></p>
                          }
         for item in itens:
             texto = texto.replace(item, itens[item])
-        
+
         # Exportar HTML
         arq = open(html_output, 'w')
         arq.write(texto)
         arq.close()
-  
+
         feedback.pushInfo(self.tr('\nOperation completed successfully!'))
         feedback.pushInfo('Leandro França - Eng Cart\n')
         return {self.OUTPUT: dest_id,

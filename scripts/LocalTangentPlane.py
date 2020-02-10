@@ -35,8 +35,20 @@ class LocalTangentPlane(QgsProcessingAlgorithm):
     H_0 = 'H_0'
     OUTPUT = 'OUTPUT'
 
-    def tr(self, string):
+    LOC = QgsApplication.locale()
+    
+    def translate(self, string):
         return QCoreApplication.translate('Processing', string)
+        
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
 
     def createInstance(self):
         return LocalTangentPlane()
@@ -48,10 +60,10 @@ class LocalTangentPlane(QgsProcessingAlgorithm):
         return self.tr('Local Geodetic System Transform')
 
     def group(self):
-        return self.tr('LF Surveyor')
+        return self.tr('LF Survey', 'LF Agrimensura')
 
     def groupId(self):
-        return 'lf_surveyor'
+        return 'lf_survey'
 
     def shortHelpString(self):
         return self.tr('''

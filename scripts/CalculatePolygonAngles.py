@@ -26,9 +26,20 @@ class CalculatePolygonAngles(QgsProcessingAlgorithm):
 
     POLYGONS = 'POLYGONS'
     ANGLES = 'ANGLES'
+    LOC = QgsApplication.locale()
 
-    def tr(self, string):
+    def translate(self, string):
         return QCoreApplication.translate('Processing', string)
+
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
 
     def createInstance(self):
         return CalculatePolygonAngles()
@@ -58,7 +69,7 @@ The output layer corresponds to the points with the calculated angles stored in 
                 [QgsProcessing.TypeVectorPolygon]
             )
         )
-        
+
         # OUTPUT
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -66,7 +77,7 @@ The output layer corresponds to the points with the calculated angles stored in 
                 self.tr('Points with angles')
             )
         )
-    
+
     def azimute(self, A,B):
             # Cálculo dos Azimutes entre dois pontos (Vetor AB origem A extremidade B)
             if ((B.x()-A.x())>=0 and (B.y()-A.y())>0): #1º quadrante
@@ -125,7 +136,7 @@ The output layer corresponds to the points with the calculated angles stored in 
             return texto
         else:
             return "0°00'" + ('{:0' + str(3+n_digits) + '.' + str(n_digits) + 'f}').format(0)
-    
+
     def areaGauss(self, coord):
         soma = 0
         tam = len(coord)
@@ -135,7 +146,7 @@ The output layer corresponds to the points with the calculated angles stored in 
             P3 = coord[ 0 if k==(tam-1) else (k+1)]
             soma += P2.x()*(P1.y() - P3.y())
         return soma/2
-        
+
     def processAlgorithm(self, parameters, context, feedback):
         # INPUT
         source = self.parameterAsSource(
@@ -145,7 +156,7 @@ The output layer corresponds to the points with the calculated angles stored in 
         )
         if source is None:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.POLYGONS))
-        
+
         # OUTPUT
         # Camada de Saída
         GeomType = QgsWkbTypes.Point
@@ -161,7 +172,7 @@ The output layer corresponds to the points with the calculated angles stored in 
                      }
         for item in itens:
             Fields.append(QgsField(item, itens[item]))
-            
+
         (sink, dest_id) = self.parameterAsSink(
             parameters,
             self.ANGLES,
@@ -211,11 +222,11 @@ The output layer corresponds to the points with the calculated angles stored in 
                                         self.dd2dms(pntsDic[ponto]['alfa_ext']),
                                         ])
                 sink.addFeature(fet, QgsFeatureSink.FastInsert)
-                
+
                 if feedback.isCanceled():
                     break
                 feedback.setProgress(int(current * total))
-        
+
         feedback.pushInfo(self.tr('Operation completed successfully!'))
         feedback.pushInfo('<b>Leandro França - Eng Cart</b>')
         return {self.ANGLES: dest_id}

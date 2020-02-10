@@ -28,8 +28,20 @@ class Helmert2D(QgsProcessingAlgorithm):
     OUTPUT = 'OUTPUT'
     HTML = 'HTML'
     
-    def tr(self, string):
+    LOC = QgsApplication.locale()
+    
+    def translate(self, string):
         return QCoreApplication.translate('Processing', string)
+        
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
 
     def createInstance(self):
         return Helmert2D()
@@ -41,10 +53,10 @@ class Helmert2D(QgsProcessingAlgorithm):
         return self.tr('2D Conformal Coordinate Transformation')
 
     def group(self):
-        return self.tr('LF Surveyor')
+        return self.tr('LF Survey', 'LF Agrimensura')
 
     def groupId(self):
-        return 'lf_surveyor'
+        return 'lf_survey'
 
     def shortHelpString(self):
         return self.tr("""two-dimensional conformal coordinate transformation, also known as the <i>four-parameter similarity transformation or Helmert 2D</i>, has the characteristic that true shape is retained after transformation. 

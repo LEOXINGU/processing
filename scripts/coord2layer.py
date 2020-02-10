@@ -31,9 +31,19 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
     LAYER = 'LAYER'
     LOC = QgsApplication.locale()
 
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', self.tradutor(string))
-        
+    def translate(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
+
     def tradutor(self, string):
         DIC_en_pt = {'Coordinates to Layer': 'Coordenadas para camada',
                             'LF Effortlessness': 'LF Mão na roda',
@@ -44,7 +54,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
                             'Create PointZ': 'Criar PointZ',
                             'CRS': 'SRC',
                             'Point Layer': 'Camada de Pontos',
-                            'Operation completed successfully!': 'Operação concluída com sucesso!',               
+                            'Operation completed successfully!': 'Operação concluída com sucesso!',
                             }
         if self.LOC == 'pt':
             if string in DIC_en_pt:
@@ -84,7 +94,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
                 [QgsProcessing.TypeVector]
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterField(
                 self.X,
@@ -93,7 +103,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
                 type=QgsProcessingParameterField.Numeric
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterField(
                 self.Y,
@@ -111,19 +121,19 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
                 type=QgsProcessingParameterField.Numeric
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.BOOL,
                 self.tr('Create PointZ'),
                 defaultValue=False))
-        
+
         self.addParameter(
             QgsProcessingParameterCrs(
-                self.CRS, 
-                self.tr('CRS'), 
+                self.CRS,
+                self.tr('CRS'),
                 'ProjectCrs'))
-        
+
         # OUTPUT
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -131,7 +141,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
                 self.tr('Point Layer')
             )
         )
-    
+
     def processAlgorithm(self, parameters, context, feedback):
 
         table = self.parameterAsSource(
@@ -139,16 +149,16 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
             self.TABLE,
             context
         )
-        
+
         if table is None:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.TABLE))
-        
+
         X_field = self.parameterAsFields(
             parameters,
             self.X,
             context
         )
-        
+
         Y_field = self.parameterAsFields(
             parameters,
             self.Y,
@@ -160,24 +170,24 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
             self.Z,
             context
         )
-        
+
         CreateZ = self.parameterAsBool(
             parameters,
             self.BOOL,
             context
         )
-        
+
         CRS = self.parameterAsCrs(
             parameters,
             self.CRS,
             context
         )
-        
+
         # Field index
         X_id = table.fields().indexFromName(X_field[0])
         Y_id = table.fields().indexFromName(Y_field[0])
         Z_id = table.fields().indexFromName(Z_field[0])
-        
+
         # OUTPUT
         Fields = table.fields()
         (sink, dest_id) = self.parameterAsSink(
@@ -190,7 +200,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         )
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.LAYER))
-        
+
         feature = QgsFeature()
         total = 100.0 / table.featureCount() if table.featureCount() else 0
         for current, feat in enumerate(table.getFeatures()):
@@ -208,8 +218,8 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
             if feedback.isCanceled():
                 break
             feedback.setProgress(int(current * total))
-            
+
         feedback.pushInfo(self.tr('Operation completed successfully!'))
         feedback.pushInfo('Leandro França - Eng Cart')
-        
+
         return {self.LAYER: dest_id}

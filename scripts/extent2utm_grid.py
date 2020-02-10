@@ -27,10 +27,20 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
     FRAME = 'FRAME'
     CRS = 'CRS'
     LOC = QgsApplication.locale()
-    
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', self.tradutor(string))
-        
+
+    def translate(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def tr(self, *string):
+        # Traduzir para o portugês: arg[0] - english (translate), arg[1] - português
+        if self.LOC == 'pt':
+            if len(string) == 2:
+                return string[1]
+            else:
+                return self.translate(string[0])
+        else:
+            return self.translate(string[0])
+
     def tradutor(self, string):
         DIC_en_pt = {'Extent to UTM Grids': 'Extensão para Molduras UTM',
                             'LF Cartography': 'LF Cartografia',
@@ -73,15 +83,15 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
             return self.tr("This algorithm returns the polygons correspondent to the <b>frames</b> related to a scale of the Brazilian Mapping System from a specific <b>extent</b> definied by the user.")
 
     def initAlgorithm(self, config=None):
-        
-        # 'INPUTS'         
+
+        # 'INPUTS'
         self.addParameter(
             QgsProcessingParameterExtent(
                 self.EXTENT,
                 self.tr('Extent')
             )
         )
-        
+
         scales = [self.tr('1:1.000.000'),
                   self.tr('1:500.000'),
                   self.tr('1:250.000'),
@@ -93,7 +103,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
 				  self.tr('1:2.000'),
 				  self.tr('1:1.000')
                ]
-        
+
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.SCALE,
@@ -102,13 +112,13 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 defaultValue= 0
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterCrs(
-                self.CRS, 
-                self.tr('Grid CRS'), 
+                self.CRS,
+                self.tr('Grid CRS'),
                 'ProjectCrs'))
-        
+
         # 'OUTPUT'
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -116,7 +126,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 self.tr('UTM Grids')
             )
         )
-    
+
     def map_sistem(self, lon, lat, ScaleD=1e6):
         # Escala 1:1.000.000
         nome = ''
@@ -137,7 +147,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                                [2.0, 1.0, 0.5, 0.25, 0.125, 0.125/3, 0.125/3/2, 0.125/3/2/2, 0.125/3/2/2/2]])
         if ScaleD > 500000:
             return nome
-        
+
         # Escala 1:500.000
         if ScaleD <= 500000:
             centro = array([MC, 4.0*floor(lat/4.0)+valores[1][0]])
@@ -152,7 +162,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 nome+='-Z'
         if ScaleD > 250000:
             return nome
-        
+
         # Escala 1:250.000
         if ScaleD <= 250000:
             centro = centro + sinal*valores[:,1]
@@ -167,7 +177,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 nome+='-D'
         if ScaleD > 100000:
                 return nome
-        
+
         # Escala 1:100.000
         if ScaleD <= 100000:
             ok = False
@@ -236,7 +246,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
             sinal = sinalx
         if ScaleD > 50000:
                 return nome
-        
+
         # Escala 1:50.000
         if ScaleD <= 50000:
             centro = centro + sinal*valores[:,3]
@@ -251,7 +261,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 nome+='-4'
         if ScaleD > 25000:
                 return nome
-        
+
         # Escala 1:25.000
         if ScaleD <= 25000:
             centro = centro + sinal*valores[:,4]
@@ -266,7 +276,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 nome+='-SE'
         if ScaleD > 10000:
                 return nome
-        
+
         # Escala 1:10.000
         if ScaleD <= 10000:
             ok = False
@@ -335,7 +345,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
             sinal = sinalx
         if ScaleD > 5000:
             return nome
-        
+
         # Escala 1:5.000
         if ScaleD <= 5000:
             centro = centro + sinal*valores[:,6]
@@ -350,7 +360,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 nome+='-IV'
         if ScaleD > 2000:
                 return nome
-        
+
         # Escala 1:2.000
         if ScaleD <= 2000:
             ok = False
@@ -419,7 +429,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
             sinal = sinalx
         if ScaleD > 1000:
                 return nome
-        
+
         # Escala 1:1.000
         if ScaleD <= 1000:
             centro = centro + sinal*valores[:,8]
@@ -433,8 +443,8 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
             elif sinal[0]==1 and sinal[1]==-1:
                 nome+='-D'
             return nome
-    
-    
+
+
     def reprojectPoints(self, geom, xform):
         if geom.type() == 0: #Point
             if geom.isMultipart():
@@ -493,9 +503,9 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 return newGeom
         else:
             return None
-    
+
     def processAlgorithm(self, parameters, context, feedback):
-        
+
         extensao = self.parameterAsExtent(
         parameters,
         self.EXTENT,
@@ -505,7 +515,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         y_max =  extensao.yMaximum()
         x_min =  extensao.xMinimum()
         x_max =  extensao.xMaximum()
-        
+
         ProjectCRS = QgsProject.instance().crs()
         if not ProjectCRS.isGeographic():
             crsGeo = QgsCoordinateReferenceSystem(ProjectCRS.geographicCrsAuthId())
@@ -521,7 +531,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         else:
             lon_min, lat_min = x_min, y_min
             lon_max, lat_max = x_max, y_max
-        
+
         escala = self.parameterAsEnum(
             parameters,
             self.SCALE,
@@ -530,27 +540,27 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         # Escala
         escalas = [1e6, 500e3, 250e3, 100e3, 50e3, 25e3, 10e3, 5e3, 2e3, 1e3]
         escala = escalas[escala]
-        
+
         crs = self.parameterAsCrs(
             parameters,
             self.CRS,
             context
         )
-        
+
         # Checking for geographic coordinate reference system
         if not crs.isGeographic():
             crsGeo = QgsCoordinateReferenceSystem(crs.geographicCrsAuthId())
             coordinateTransformer = QgsCoordinateTransform()
             coordinateTransformer.setDestinationCrs(crs)
             coordinateTransformer.setSourceCrs(crsGeo)
-        
+
         # Output Definition
         Fields = QgsFields()
         Fields.append(QgsField('inom', QVariant.String))
         Fields.append(QgsField('mi', QVariant.String))
         Fields.append(QgsField(self.tr('scale'), QVariant.Int))
         GeomType = QgsWkbTypes.Polygon
-        
+
         (sink2, dest2_id) = self.parameterAsSink(
             parameters,
             self.FRAME,
@@ -559,16 +569,16 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
             GeomType,
             crs
         )
-                
+
         deltas = array([[6.0, 3.0, 1.5, 0.5, 0.25, 0.125, 0.125/2, 0.125/2/2, 0.125/2/2/3, 0.125/2/2/3/2],
                     [4.0, 2.0, 1.0, 0.5, 0.25, 0.125, 0.125/3, 0.125/3/2, 0.125/3/2/2, 0.125/3/2/2/2]])
-        
+
         d_lon = deltas[:, escalas.index(escala)][0]
         d_lat = deltas[:, escalas.index(escala)][1]
-        
+
         LON = arange(lon_min + 1e-10, lon_max + 1e-10 + d_lon, d_lon)
         LAT = arange(lat_min + 1e-10, lat_max+ 1e-10 + d_lat, d_lat)
-        
+
         Percent = 100.0/(len(LON)*len(LAT))
         current = 0
         for lon in LON:
@@ -581,13 +591,13 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                     lat0 = modf(lat/d_lat)[1]*d_lat
                 else:
                     lat0 = modf(lat/d_lat)[1]*d_lat - d_lat
-                
-                coord = [[QgsPointXY(lon0, lat0), 
-                      QgsPointXY(lon0, lat0+d_lat), 
-                      QgsPointXY(lon0+d_lon, lat0+d_lat), 
-                      QgsPointXY(lon0+d_lon, lat0), 
+
+                coord = [[QgsPointXY(lon0, lat0),
+                      QgsPointXY(lon0, lat0+d_lat),
+                      QgsPointXY(lon0+d_lon, lat0+d_lat),
+                      QgsPointXY(lon0+d_lon, lat0),
                       QgsPointXY(lon0, lat0)]]
-                      
+
                 feat = QgsFeature()
                 geom = QgsGeometry.fromPolygonXY(coord)
                 # Coordinate Transformations (if needed)
@@ -616,12 +626,11 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                 sink2.addFeature(feat, QgsFeatureSink.FastInsert)
                 current += 1
                 feedback.setProgress(int(current * Percent))
-        
+
         if sink2 is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.FRAME))
-        
+
         feedback.pushInfo(self.tr('Operation completed successfully!'))
         feedback.pushInfo('Leandro França - Eng Cart')
-        
+
         return {self.FRAME: dest2_id}
-        
