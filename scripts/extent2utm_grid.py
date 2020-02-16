@@ -41,23 +41,6 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         else:
             return self.translate(string[0])
 
-    def tradutor(self, string):
-        DIC_en_pt = {'Extent to UTM Grids': 'Extensão para Molduras UTM',
-                            'LF Cartography': 'LF Cartografia',
-                            'Scale': 'Escala',
-                            'Extent': 'Extensão',
-                            'Grid CRS': 'SRC da Moldura',
-                            'UTM Grids': 'Molduras UTM',
-                            'scale': 'escala'
-                            }
-        if self.LOC == 'pt':
-            if string in DIC_en_pt:
-                return DIC_en_pt[string]
-            else:
-                return string
-        else:
-            return string
-
     def createInstance(self):
         return Extent2UTMGrid()
 
@@ -66,11 +49,11 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
 
     def displayName(self):
 
-        return self.tr('Extent to UTM Grids')
+        return self.tr('Extent to UTM Grids', 'Extensão para Molduras UTM')
 
     def group(self):
 
-        return self.tr('LF Cartography')
+        return self.tr('LF Cartography', 'LF Cartografia')
 
     def groupId(self):
 
@@ -88,7 +71,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterExtent(
                 self.EXTENT,
-                self.tr('Extent')
+                self.tr('Extent', 'Extensão')
             )
         )
 
@@ -107,7 +90,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.SCALE,
-                self.tr('Scale'),
+                self.tr('Scale', 'Escala'),
 				options = scales,
                 defaultValue= 0
             )
@@ -116,14 +99,14 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterCrs(
                 self.CRS,
-                self.tr('Grid CRS'),
+                self.tr('Grid CRS', 'SRC'),
                 'ProjectCrs'))
 
         # 'OUTPUT'
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.FRAME,
-                self.tr('UTM Grids')
+                self.tr('UTM Grids', 'Camada de Molduras')
             )
         )
 
@@ -558,7 +541,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         Fields = QgsFields()
         Fields.append(QgsField('inom', QVariant.String))
         Fields.append(QgsField('mi', QVariant.String))
-        Fields.append(QgsField(self.tr('scale'), QVariant.Int))
+        Fields.append(QgsField(self.tr('scale', 'escala'), QVariant.Int))
         GeomType = QgsWkbTypes.Polygon
 
         (sink2, dest2_id) = self.parameterAsSink(
@@ -630,7 +613,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         if sink2 is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.FRAME))
 
-        feedback.pushInfo(self.tr('Operation completed successfully!'))
+        feedback.pushInfo(self.tr('Operation completed successfully!', 'Operação finalizada com sucesso!'))
         feedback.pushInfo('Leandro França - Eng Cart')
 
         return {self.FRAME: dest2_id}

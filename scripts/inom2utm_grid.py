@@ -41,24 +41,6 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         else:
             return self.translate(string[0])
 
-    def tradutor(self, string):
-        DIC_en_pt = {'Name to UTM Grid': 'Nome para Moldura UTM',
-                            'LF Cartography': 'LF Cartografia',
-                            'Scale': 'Escala',
-                            'Name': 'Nome',
-                            'Type': 'Tipo',
-                            'Grid CRS': 'SRC da Moldura',
-                            'UTM Grids': 'Molduras UTM',
-                            'scale': 'escala'
-                            }
-        if self.LOC == 'pt':
-            if string in DIC_en_pt:
-                return DIC_en_pt[string]
-            else:
-                return string
-        else:
-            return string
-
     def createInstance(self):
 
         return Inom2utmGrid()
@@ -69,11 +51,11 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
 
     def displayName(self):
 
-        return self.tr('Name to UTM Grid')
+        return self.tr('Name to UTM Grid', 'Nome para Moldura UTM')
 
     def group(self):
 
-        return self.tr('LF Cartography')
+        return self.tr('LF Cartography', 'LF Cartografia')
 
     def groupId(self):
 
@@ -151,7 +133,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterString(
                 self.NAME,
-                self.tr('Name')
+                self.tr('Name', 'Nome')
             )
         )
 
@@ -161,7 +143,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.TYPE,
-                self.tr('Type'),
+                self.tr('Type', 'Tipo'),
 				options = tipos,
                 defaultValue= 0
             )
@@ -170,7 +152,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterCrs(
                 self.CRS,
-                self.tr('Grid CRS'),
+                self.tr('Grid CRS', 'SRC da Moldura'),
                 'ProjectCrs'
 			)
 		)
@@ -179,7 +161,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.FRAME,
-                self.tr('UTM Grid')
+                self.tr('UTM Grid', 'Moldura')
             )
         )
 
@@ -214,7 +196,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         Fields = QgsFields()
         Fields.append(QgsField('inom', QVariant.String))
         Fields.append(QgsField('mi', QVariant.String))
-        Fields.append(QgsField(self.tr('scale'), QVariant.Int))
+        Fields.append(QgsField(self.tr('scale', 'escala'), QVariant.Int))
         GeomType = QgsWkbTypes.Polygon
 
         (sink, dest_id) = self.parameterAsSink(
@@ -234,7 +216,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         if tipo == 0:
 
             if lista[0] not in dicionario:
-                raise QgsProcessingException('erro: MI não existe')
+                raise QgsProcessingException(self.tr('error: MI does not exist!','erro: MI não existe!'))
 
             if len(lista)>1:
                 lista = dicionario[lista[0]].split('-') + lista[1:]
@@ -242,7 +224,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
                 lista = dicionario[lista[0]].split('-')
 
         if len(lista)<2:
-            raise QgsProcessingException('erro: nome incorreto')
+            raise QgsProcessingException(self.tr('error: Incomplete name!','erro: nome incorreto!'))
 
         # Hemisphere
         if lista[0][0] == 'S':
@@ -250,7 +232,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         elif lista[0][0] == 'N':
             sinal = 1
         else:
-            raise QgsProcessingException('erro: hemisfério incorreto')
+            raise QgsProcessingException(self.tr('error: wrong hemisphere!','erro: hemisfério incorreto!'))
 
         # Latitude inicial
         if sinal == -1:
@@ -260,7 +242,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
 
         # Longitude inicial
         if int(lista[1])<1 or int(lista[1])>60:
-            raise QgsProcessingException('erro: fuso incorreto')
+            raise QgsProcessingException(self.tr('error: wrong zone!','erro: fuso incorreto!'))
         lon = 6*int(lista[1]) - 186
 
         if len(lista) ==2:
@@ -285,7 +267,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
                 d_lat = dic_delta[escalas[k]][cod][1]
                 lon += d_lon
                 lat += d_lat
-            feedback.pushInfo('Origem: Longitude = {} e Latitude = {}'.format(lon, lat))
+            feedback.pushInfo(self.tr('Origin','Origem')+': Longitude = {} e Latitude = {}'.format(lon, lat))
             valores = array([[3.0, 1.5, 0.5, 0.25, 0.125, 0.125/2, 0.125/2/2, 0.125/2/2/3, 0.125/2/2/3/2],
                                    [2.0, 1.0, 0.5, 0.25, 0.125, 0.125/3, 0.125/3/2, 0.125/3/2/2, 0.125/3/2/2/2]])
             d_lon = valores[0,k]
@@ -326,8 +308,7 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.FRAME))
 
-        feedback.pushInfo(self.tr('Operation completed successfully!'))
+        feedback.pushInfo(self.tr('Operation completed successfully!', 'Operação finalizada com sucesso!'))
         feedback.pushInfo('Leandro França - Eng Cart')
-        #iface.messageBar().pushMessage("u'Situacao", "Operacao Concluida com Sucesso!", level=Qgis.Success, duration=5)
 
         return {self.FRAME: dest_id}

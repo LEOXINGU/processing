@@ -50,7 +50,7 @@ class Helmert2D(QgsProcessingAlgorithm):
         return 'helmert2D'
 
     def displayName(self):
-        return self.tr('2D Conformal Coordinate Transformation')
+        return self.tr('2D Conformal Transformation', 'Transformação Conforme 2D')
 
     def group(self):
         return self.tr('LF Survey', 'LF Agrimensura')
