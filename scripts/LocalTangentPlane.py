@@ -456,9 +456,9 @@ Default values for origin coordinates can be applied to Recife / Brazil'''
             
             itens  = {
                          'lon' : float(lon),
-                         'lon_dms' : self.dd2dms(float(lon),2),
+                         'lon_dms' : self.dd2dms(float(lon),5),
                          'lat':  float(lat),
-                         'lat_dms':  self.dd2dms(float(lat),2),
+                         'lat_dms':  self.dd2dms(float(lat),5),
                          'h': float(h),
                          'X':  float(X),
                          'Y': float(Y),
