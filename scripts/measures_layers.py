@@ -38,32 +38,6 @@ class MeasureLayers(QgsProcessingAlgorithm):
         else:
             return self.translate(string[0])
 
-    def tradutor(self, string):
-        DIC_en_pt = {'Measure Layers': 'Medir Camadas',
-                            'LF Effortlessness': 'LF Mão na roda',
-                            'Meters (m)': 'Metros (m)',
-                            'Square Meters (m²)': 'Metros quadrados (m²)',
-                            'Distance Units': 'Unidade de distância',
-                            'Area Units': 'Unidade de área',
-                            'Precision': 'Número de casas decimais',
-                            'length': 'comprimento',
-                            'perimeter': 'perímetro',
-                            'area': 'área',
-                            'Feets (ft)': 'Pés (ft)',
-                            'Yards (yd)': 'Jardas (yd)',
-                            'Kilometers (Km)': 'Quilômetros (Km)',
-                            'Miles (mi)': 'Milhas (mi)',
-                            'Square Meters (m²)': 'Metros quadrados (m²)',
-                            'Square Kilometers (Km²)': 'Quilômetros quadrados (Km²)'
-                            }
-        if self.LOC == 'pt':
-            if string in DIC_en_pt:
-                return DIC_en_pt[string]
-            else:
-                return string
-        else:
-            return string
-
     def createInstance(self):
         return MeasureLayers()
 
@@ -71,10 +45,10 @@ class MeasureLayers(QgsProcessingAlgorithm):
         return 'measure_layers'
 
     def displayName(self):
-        return self.tr('Measure Layers')
+        return self.tr('Measure Layers', 'Medir Camadas')
 
     def group(self):
-        return self.tr('LF Effortlessness')
+        return self.tr('LF Effortlessness', 'Mão na Roda')
 
     def groupId(self):
         return 'lf_effortlessness'
@@ -86,21 +60,21 @@ class MeasureLayers(QgsProcessingAlgorithm):
             return self.tr("This tool calculates in virtual fields the lengths of features of the line type and the perimeter and area of features of the polygon type for all layers.")
 
     def initAlgorithm(self, config=None):
-        units_dist = [self.tr('Meters (m)'),
-                      self.tr('Feets (ft)'),
-                      self.tr('Yards (yd)'),
-                      self.tr('Kilometers (Km)'),
-                      self.tr('Miles (mi)')
+        units_dist = [self.tr('Meters (m)', 'Metros (m)'),
+                      self.tr('Feets (ft)', 'Pés (ft)'),
+                      self.tr('Yards (yd)', 'Jardas (Yd)'),
+                      self.tr('Kilometers (Km)', 'Quilômetros (Km)'),
+                      self.tr('Miles (mi)', 'Milhas (mi)')
                ]
-        units_area = [self.tr('Square Meters (m²)'),
-                      self.tr('Hectares (ha)'),
-                      self.tr('Square Kilometers (Km²)')
+        units_area = [self.tr('Square Meters (m²)', 'Metros quadrados (m²)'),
+                      self.tr('Hectares (ha)', 'Hectares (ha)'),
+                      self.tr('Square Kilometers (Km²)', 'Quilômetros quadrados (Km²)')
                ]
 
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.DISTANCE,
-                self.tr('Distance Units'),
+                self.tr('Distance Units', 'Unidade de distância'),
 				options = units_dist,
                 defaultValue= 0
             )
@@ -109,7 +83,7 @@ class MeasureLayers(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.AREA,
-                self.tr('Area Units'),
+                self.tr('Area Units', 'Unidade de Área'),
 				options = units_area,
                 defaultValue= 0
             )
@@ -118,7 +92,7 @@ class MeasureLayers(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.PRECISION,
-                self.tr('Precision'),
+                self.tr('Precision', 'Precisão'),
                 type = 0, # float = 1 and integer = 0
                 defaultValue = 3
             )
@@ -152,9 +126,9 @@ class MeasureLayers(QgsProcessingAlgorithm):
         unidade_dist = unid_transf_dist[units_dist]
         unidade_area = unid_transf_area[units_area]
 
-        field_length = QgsField( self.tr('length')+'_'+unid_abb_dist[units_dist], QVariant.Double, "numeric", 14, precisao)
-        field_perimeter = QgsField( self.tr('perimeter')+'_'+unid_abb_dist[units_dist], QVariant.Double, "numeric", 14, precisao)
-        field_area = QgsField( self.tr('area')+'_'+unid_abb_area[units_area], QVariant.Double, "numeric", 14, precisao)
+        field_length = QgsField( self.tr('length', 'comprimento')+'_'+unid_abb_dist[units_dist], QVariant.Double, "numeric", 14, precisao)
+        field_perimeter = QgsField( self.tr('perimeter', 'perímetro')+'_'+unid_abb_dist[units_dist], QVariant.Double, "numeric", 14, precisao)
+        field_area = QgsField( self.tr('area', 'área')+'_'+unid_abb_area[units_area], QVariant.Double, "numeric", 14, precisao)
 
         camadas = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
         num_camadas = len(camadas)

@@ -44,26 +44,6 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         else:
             return self.translate(string[0])
 
-    def tradutor(self, string):
-        DIC_en_pt = {'Coordinates to Layer': 'Coordenadas para camada',
-                            'LF Effortlessness': 'LF Mão na roda',
-                            'Table with coordinates': 'Tabela com coordenadas',
-                            'X Coordinate': 'Coordenada X',
-                            'Y Coordinate': 'Coordenada Y',
-                            'Z Coordinate': 'Coordenada Z',
-                            'Create PointZ': 'Criar PointZ',
-                            'CRS': 'SRC',
-                            'Point Layer': 'Camada de Pontos',
-                            'Operation completed successfully!': 'Operação concluída com sucesso!',
-                            }
-        if self.LOC == 'pt':
-            if string in DIC_en_pt:
-                return DIC_en_pt[string]
-            else:
-                return string
-        else:
-            return string
-
     def createInstance(self):
         return CoordinatesToLayer()
 
@@ -71,10 +51,10 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         return 'coord2layer'
 
     def displayName(self):
-        return self.tr('Coordinates to Layer')
+        return self.tr('Coordinates to Layer', 'Coordenadas para Camada')
 
     def group(self):
-        return self.tr('LF Effortlessness')
+        return self.tr('LF Effortlessness', 'LF Mão na Roda')
 
     def groupId(self):
         return 'lf_effortlessness'
@@ -90,7 +70,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.TABLE,
-                self.tr('Table with coordinates'),
+                self.tr('Table with coordinates', 'Tabela com coordenadas'),
                 [QgsProcessing.TypeVector]
             )
         )
@@ -98,7 +78,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterField(
                 self.X,
-                self.tr('X Coordinate'),
+                self.tr('X Coordinate', 'Coordenada X'),
                 parentLayerParameterName=self.TABLE,
                 type=QgsProcessingParameterField.Numeric
             )
@@ -107,7 +87,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterField(
                 self.Y,
-                self.tr('Y Coordinate'),
+                self.tr('Y Coordinate', 'Coordenada Y'),
                 parentLayerParameterName=self.TABLE,
                 type=QgsProcessingParameterField.Numeric
             )
@@ -116,7 +96,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterField(
                 self.Z,
-                self.tr('Z Coordinate'),
+                self.tr('Z Coordinate', 'Coordenada Z'),
                 parentLayerParameterName=self.TABLE,
                 type=QgsProcessingParameterField.Numeric
             )
@@ -125,20 +105,20 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.BOOL,
-                self.tr('Create PointZ'),
+                self.tr('Create PointZ', 'Criar PointZ'),
                 defaultValue=False))
 
         self.addParameter(
             QgsProcessingParameterCrs(
                 self.CRS,
-                self.tr('CRS'),
+                self.tr('CRS', 'SRC'),
                 'ProjectCrs'))
 
         # OUTPUT
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.LAYER,
-                self.tr('Point Layer')
+                self.tr('Point Layer', 'Camada de Pontos')
             )
         )
 
@@ -219,7 +199,7 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
                 break
             feedback.setProgress(int(current * total))
 
-        feedback.pushInfo(self.tr('Operation completed successfully!'))
+        feedback.pushInfo(self.tr('Operation completed successfully!', 'Operação finalizada com sucesso!'))
         feedback.pushInfo('Leandro França - Eng Cart')
 
         return {self.LAYER: dest_id}
