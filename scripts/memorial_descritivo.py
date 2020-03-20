@@ -146,7 +146,7 @@ de
 coordenadas <b>N [Nn] m </b>e <b>E [En] m</b>;
 [Az_n] e [Dist_n] m at&eacute; '''
 
-    texto_final = '''o v&eacute;rtice <b>P-001</b>, de coordenadas <b>N
+    texto_final = '''o v&eacute;rtice <b>[P-01]</b>, de coordenadas <b>N
 [N1] m </b>e <b>E [E1] m</b>, ponto
 inicial da descri&ccedil;&atilde;o deste per&iacute;metro.
 Todas as coordenadas aqui descritas est&atilde;o
@@ -345,7 +345,11 @@ calculados.<o:p></o:p></p>
                                                      context)
                                                      
         meses = {1: 'janeiro', 2:'fevereiro', 3: 'março', 4:'abril', 5:'maio', 6:'junho', 7:'julho', 8:'agosto', 9:'setembro', 10:'outubro', 11:'novembro', 12:'dezembro'}
-
+        
+        # VALIDAÇÃO DOS DADOS DE ENTRADA!!!
+        # atributos codigo deve ser preenchido
+        # ordem do numeros
+        
         # Pegando informações dos confrontantes (limites)
         ListaDescr = []
         ListaCont = []
@@ -380,16 +384,16 @@ calculados.<o:p></o:p></p>
         for feat in vertices.getFeatures():
             geom = feat.geometry()
             if geom.isMultipart():
-                pnts[feat['ordem']] = coordinateTransformer.transform(geom.asMultiPoint()[0])
+                pnts[feat['ordem']] = [coordinateTransformer.transform(geom.asMultiPoint()[0]), feat['tipo'], feat['codigo'] ]
             else:
-                pnts[feat['ordem']] = coordinateTransformer.transform(geom.asPoint())
+                pnts[feat['ordem']] = [coordinateTransformer.transform(geom.asPoint()), feat['tipo'], feat['codigo'] ]
         
         # Cálculo dos Azimutes e Distâncias
         tam = len(pnts)
         Az_lista, Dist = [], []
         for k in range(tam):
-            pntA = pnts[k+1]
-            pntB = pnts[max((k+2)%(tam+1),1)]
+            pntA = pnts[k+1][0]
+            pntB = pnts[max((k+2)%(tam+1),1)][0]
             Az_lista += [(180/pi)*self.azimute(pntA, pntB)[0]]
             Dist += [sqrt((pntA.x() - pntB.x())**2 + (pntA.y() - pntB.y())**2)]
 
@@ -412,9 +416,9 @@ calculados.<o:p></o:p></p>
         #feedback.pushInfo(str(ListaCont))
         for w,t in enumerate(ListaCont):
             linha0 = self.texto_var1
-            itens = {'[Vn]': 'P-' + str(t[0]+1).zfill(3),
-                        '[En]': '{:,.2f}'.format(pnts[t[0]+1].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                        '[Nn]': '{:,.2f}'.format(pnts[t[0]+1].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
+            itens = {'[Vn]': pnts[t[0]+1][1] + '-' + pnts[t[0]+1][2],
+                        '[En]': '{:,.2f}'.format(pnts[t[0]+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
+                        '[Nn]': '{:,.2f}'.format(pnts[t[0]+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Az_n]': self.dd2dms(Az_lista[t[0]]).replace('.', ','),
                         '[Dist_n]': '{:,.2f}'.format(Dist[t[0]]).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Descr_k]': ListaDescr[w][0],
@@ -426,9 +430,9 @@ calculados.<o:p></o:p></p>
             LIN0 = ''
             for k in range(t[0]+1, t[0]+t[1]):
                 linha1 = self.texto_var2
-                itens = {'[Vn]': 'P-' + str(k+1).zfill(3),
-                        '[En]': '{:,.2f}'.format(pnts[k+1].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                        '[Nn]': '{:,.2f}'.format(pnts[k+1].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
+                itens = {'[Vn]': pnts[k+1][1] + '-' + pnts[k+1][2],
+                        '[En]': '{:,.2f}'.format(pnts[k+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
+                        '[Nn]': '{:,.2f}'.format(pnts[k+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Az_n]': self.dd2dms(Az_lista[k]).replace('.', ','),
                         '[Dist_n]': '{:,.2f}'.format(Dist[k]).replace(',', 'X').replace('.', ',').replace('X', '.')
                         }
@@ -438,8 +442,9 @@ calculados.<o:p></o:p></p>
             LINHAS += LIN0
 
         # Inserindo dados finais
-        itens = {'[N1]': '{:,.2f}'.format(pnts[1].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                     '[E1]': '{:,.2f}'.format(pnts[1].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
+        itens = {   '[P-01]': pnts[1][1] + '-' + pnts[1][2],
+                     '[N1]': '{:,.2f}'.format(pnts[1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
+                     '[E1]': '{:,.2f}'.format(pnts[1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                      '[FUSO]': str(self.FusoHemisf(centroideG)[1]),
                      '[HEMISFERIO]': self.FusoHemisf(centroideG)[0],
                      '[RESP_TEC]': self.str2HTML(feat1['Resp_Tecnico']), 
