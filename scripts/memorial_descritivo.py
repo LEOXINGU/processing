@@ -416,7 +416,7 @@ calculados.<o:p></o:p></p>
         #feedback.pushInfo(str(ListaCont))
         for w,t in enumerate(ListaCont):
             linha0 = self.texto_var1
-            itens = {'[Vn]': pnts[t[0]+1][1] + '-' + pnts[t[0]+1][2],
+            itens = {'[Vn]': pnts[t[0]+1][2],
                         '[En]': '{:,.2f}'.format(pnts[t[0]+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Nn]': '{:,.2f}'.format(pnts[t[0]+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Az_n]': self.dd2dms(Az_lista[t[0]]).replace('.', ','),
@@ -430,7 +430,7 @@ calculados.<o:p></o:p></p>
             LIN0 = ''
             for k in range(t[0]+1, t[0]+t[1]):
                 linha1 = self.texto_var2
-                itens = {'[Vn]': pnts[k+1][1] + '-' + pnts[k+1][2],
+                itens = {'[Vn]': pnts[k+1][2],
                         '[En]': '{:,.2f}'.format(pnts[k+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Nn]': '{:,.2f}'.format(pnts[k+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Az_n]': self.dd2dms(Az_lista[k]).replace('.', ','),

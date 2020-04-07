@@ -684,6 +684,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         if mag_decl:
             Fields.append(QgsField(self.tr('MD', 'DM'), QVariant.Double))
             Fields.append(QgsField(self.tr('VAR_MD', 'var_DM'), QVariant.Double))
+            Fields.append(QgsField(self.tr('Epoch', 'Época'), QVariant.Date))
         if zone_hemisf:
             Fields.append(QgsField(self.tr('zone_hemisphere', 'fuso_hemisfério'), QVariant.String))
         
