@@ -1,0 +1,351 @@
+<!DOCTYPE model>
+<Option type="Map">
+  <Option name="children" type="Map">
+    <Option name="gdal:cliprasterbymasklayer_1" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="gdal:cliprasterbymasklayer" type="QString"/>
+      <Option name="component_description" value="Recortar raster pela camada de máscara" type="QString"/>
+      <Option name="component_pos_x" value="802.4000000000001" type="double"/>
+      <Option name="component_pos_y" value="421.6" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="gdal:cliprasterbymasklayer_1" type="QString"/>
+      <Option name="outputs" type="Map">
+        <Option name="Mapa de Kernel" type="Map">
+          <Option name="child_id" value="gdal:cliprasterbymasklayer_1" type="QString"/>
+          <Option name="component_description" value="Mapa de Kernel" type="QString"/>
+          <Option name="component_pos_x" value="983.2000000000003" type="double"/>
+          <Option name="component_pos_y" value="568.2" type="double"/>
+          <Option name="default_value" type="invalid"/>
+          <Option name="mandatory" value="false" type="bool"/>
+          <Option name="name" value="Mapa de Kernel" type="QString"/>
+          <Option name="output_name" value="OUTPUT" type="QString"/>
+        </Option>
+      </Option>
+      <Option name="outputs_collapsed" value="true" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="ALPHA_BAND" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="false" type="bool"/>
+          </Option>
+        </Option>
+        <Option name="CROP_TO_CUTLINE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="true" type="bool"/>
+          </Option>
+        </Option>
+        <Option name="DATA_TYPE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="EXTRA" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="" type="QString"/>
+          </Option>
+        </Option>
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="child_id" value="qgis:heatmapkerneldensityestimation_1" type="QString"/>
+            <Option name="output_name" value="OUTPUT" type="QString"/>
+            <Option name="source" value="1" type="int"/>
+          </Option>
+        </Option>
+        <Option name="KEEP_RESOLUTION" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="false" type="bool"/>
+          </Option>
+        </Option>
+        <Option name="MASK" type="List">
+          <Option type="Map">
+            <Option name="child_id" value="native:reprojectlayer_2" type="QString"/>
+            <Option name="output_name" value="OUTPUT" type="QString"/>
+            <Option name="source" value="1" type="int"/>
+          </Option>
+        </Option>
+        <Option name="MULTITHREADING" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="false" type="bool"/>
+          </Option>
+        </Option>
+        <Option name="NODATA" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+        <Option name="OPTIONS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="" type="QString"/>
+          </Option>
+        </Option>
+        <Option name="SET_RESOLUTION" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="false" type="bool"/>
+          </Option>
+        </Option>
+        <Option name="SOURCE_CRS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+        <Option name="TARGET_CRS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+        <Option name="X_RESOLUTION" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+        <Option name="Y_RESOLUTION" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option name="native:reprojectlayer_1" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="native:reprojectlayer" type="QString"/>
+      <Option name="component_description" value="Reprojetar camada" type="QString"/>
+      <Option name="component_pos_x" value="288.7999999999999" type="double"/>
+      <Option name="component_pos_y" value="163.2" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="native:reprojectlayer_1" type="QString"/>
+      <Option name="outputs"/>
+      <Option name="outputs_collapsed" value="true" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="sedesmunicipais" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="TARGET_CRS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="QgsCoordinateReferenceSystem">
+              <spatialrefsys>
+                <wkt>PROJCRS["SIRGAS 2000 / Brazil Polyconic",BASEGEOGCRS["SIRGAS 2000",DATUM["Sistema de Referencia Geocentrico para las AmericaS 2000",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4674]],CONVERSION["Brazil Polyconic",METHOD["American Polyconic",ID["EPSG",9818]],PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8801]],PARAMETER["Longitude of natural origin",-54,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8802]],PARAMETER["False easting",5000000,LENGTHUNIT["metre",1],ID["EPSG",8806]],PARAMETER["False northing",10000000,LENGTHUNIT["metre",1],ID["EPSG",8807]]],CS[Cartesian,2],AXIS["easting (X)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["northing (Y)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["unknown"],AREA["Brazil"],BBOX[-35.71,-74.01,7.04,-25.28]],ID["EPSG",5880]]</wkt>
+                <proj4>+proj=poly +lat_0=0 +lon_0=-54 +x_0=5000000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+                <srsid>29504</srsid>
+                <srid>5880</srid>
+                <authid>EPSG:5880</authid>
+                <description>SIRGAS 2000 / Brazil Polyconic</description>
+                <projectionacronym>poly</projectionacronym>
+                <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+                <geographicflag>false</geographicflag>
+              </spatialrefsys>
+            </Option>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option name="native:reprojectlayer_2" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="native:reprojectlayer" type="QString"/>
+      <Option name="component_description" value="Reprojetar Recortante" type="QString"/>
+      <Option name="component_pos_x" value="501.6" type="double"/>
+      <Option name="component_pos_y" value="386.40000000000003" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="native:reprojectlayer_2" type="QString"/>
+      <Option name="outputs"/>
+      <Option name="outputs_collapsed" value="true" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="recortante" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="TARGET_CRS" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="QgsCoordinateReferenceSystem">
+              <spatialrefsys>
+                <wkt>PROJCRS["SIRGAS 2000 / Brazil Polyconic",BASEGEOGCRS["SIRGAS 2000",DATUM["Sistema de Referencia Geocentrico para las AmericaS 2000",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4674]],CONVERSION["Brazil Polyconic",METHOD["American Polyconic",ID["EPSG",9818]],PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8801]],PARAMETER["Longitude of natural origin",-54,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8802]],PARAMETER["False easting",5000000,LENGTHUNIT["metre",1],ID["EPSG",8806]],PARAMETER["False northing",10000000,LENGTHUNIT["metre",1],ID["EPSG",8807]]],CS[Cartesian,2],AXIS["easting (X)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["northing (Y)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["unknown"],AREA["Brazil"],BBOX[-35.71,-74.01,7.04,-25.28]],ID["EPSG",5880]]</wkt>
+                <proj4>+proj=poly +lat_0=0 +lon_0=-54 +x_0=5000000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+                <srsid>29504</srsid>
+                <srid>5880</srid>
+                <authid>EPSG:5880</authid>
+                <description>SIRGAS 2000 / Brazil Polyconic</description>
+                <projectionacronym>poly</projectionacronym>
+                <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+                <geographicflag>false</geographicflag>
+              </spatialrefsys>
+            </Option>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option name="qgis:heatmapkerneldensityestimation_1" type="Map">
+      <Option name="active" value="true" type="bool"/>
+      <Option name="alg_config"/>
+      <Option name="alg_id" value="qgis:heatmapkerneldensityestimation" type="QString"/>
+      <Option name="component_description" value="Mapa de calor (Estimativa de densidade Kernel)" type="QString"/>
+      <Option name="component_pos_x" value="508.7999999999999" type="double"/>
+      <Option name="component_pos_y" value="263.2" type="double"/>
+      <Option name="dependencies"/>
+      <Option name="id" value="qgis:heatmapkerneldensityestimation_1" type="QString"/>
+      <Option name="outputs"/>
+      <Option name="outputs_collapsed" value="true" type="bool"/>
+      <Option name="parameters_collapsed" value="true" type="bool"/>
+      <Option name="params" type="Map">
+        <Option name="DECAY" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="0" type="double"/>
+          </Option>
+        </Option>
+        <Option name="INPUT" type="List">
+          <Option type="Map">
+            <Option name="child_id" value="native:reprojectlayer_1" type="QString"/>
+            <Option name="output_name" value="OUTPUT" type="QString"/>
+            <Option name="source" value="1" type="int"/>
+          </Option>
+        </Option>
+        <Option name="KERNEL" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="OUTPUT_VALUE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="PIXEL_SIZE" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" value="1000" type="double"/>
+          </Option>
+        </Option>
+        <Option name="RADIUS" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="raiodebusca" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+        <Option name="RADIUS_FIELD" type="List">
+          <Option type="Map">
+            <Option name="source" value="2" type="int"/>
+            <Option name="static_value" type="invalid"/>
+          </Option>
+        </Option>
+        <Option name="WEIGHT_FIELD" type="List">
+          <Option type="Map">
+            <Option name="parameter_name" value="peso" type="QString"/>
+            <Option name="source" value="0" type="int"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+  </Option>
+  <Option name="help"/>
+  <Option name="modelVariables"/>
+  <Option name="model_group" value="COVID-19" type="QString"/>
+  <Option name="model_name" value="Mapa de Kernel" type="QString"/>
+  <Option name="parameterDefinitions" type="Map">
+    <Option name="gdal:cliprasterbymasklayer_1:Mapa de Kernel" type="Map">
+      <Option name="create_by_default" value="true" type="bool"/>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Mapa de Kernel" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="gdal:cliprasterbymasklayer_1:Mapa de Kernel" type="QString"/>
+      <Option name="parameter_type" value="rasterDestination" type="QString"/>
+      <Option name="supports_non_file_outputs" value="false" type="bool"/>
+    </Option>
+    <Option name="peso" type="Map">
+      <Option name="allow_multiple" value="false" type="bool"/>
+      <Option name="data_type" value="0" type="int"/>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Peso" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="peso" type="QString"/>
+      <Option name="parameter_type" value="field" type="QString"/>
+      <Option name="parent_layer" value="sedesmunicipais" type="QString"/>
+    </Option>
+    <Option name="raiodebusca" type="Map">
+      <Option name="data_type" value="1" type="int"/>
+      <Option name="default" value="80000" type="QString"/>
+      <Option name="description" value="Raio de Busca" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="max" value="1.7976931348623157e+308" type="double"/>
+      <Option name="metadata"/>
+      <Option name="min" value="-1.7976931348623157e+308" type="double"/>
+      <Option name="name" value="raiodebusca" type="QString"/>
+      <Option name="parameter_type" value="number" type="QString"/>
+    </Option>
+    <Option name="recortante" type="Map">
+      <Option name="data_types" type="List">
+        <Option value="2" type="int"/>
+      </Option>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Recortante" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="recortante" type="QString"/>
+      <Option name="parameter_type" value="vector" type="QString"/>
+    </Option>
+    <Option name="sedesmunicipais" type="Map">
+      <Option name="data_types" type="List">
+        <Option value="0" type="int"/>
+      </Option>
+      <Option name="default" type="invalid"/>
+      <Option name="description" value="Sedes Municipais" type="QString"/>
+      <Option name="flags" value="0" type="int"/>
+      <Option name="metadata"/>
+      <Option name="name" value="sedesmunicipais" type="QString"/>
+      <Option name="parameter_type" value="vector" type="QString"/>
+    </Option>
+  </Option>
+  <Option name="parameters" type="Map">
+    <Option name="peso" type="Map">
+      <Option name="component_description" value="peso" type="QString"/>
+      <Option name="component_pos_x" value="576.8000000000001" type="double"/>
+      <Option name="component_pos_y" value="126.4" type="double"/>
+      <Option name="name" value="peso" type="QString"/>
+    </Option>
+    <Option name="raiodebusca" type="Map">
+      <Option name="component_description" value="raiodebusca" type="QString"/>
+      <Option name="component_pos_x" value="194.39999999999998" type="double"/>
+      <Option name="component_pos_y" value="267.19999999999993" type="double"/>
+      <Option name="name" value="raiodebusca" type="QString"/>
+    </Option>
+    <Option name="recortante" type="Map">
+      <Option name="component_description" value="recortante" type="QString"/>
+      <Option name="component_pos_x" value="199.20000000000005" type="double"/>
+      <Option name="component_pos_y" value="491.9999999999999" type="double"/>
+      <Option name="name" value="recortante" type="QString"/>
+    </Option>
+    <Option name="sedesmunicipais" type="Map">
+      <Option name="component_description" value="sedesmunicipais" type="QString"/>
+      <Option name="component_pos_x" value="134.40000000000003" type="double"/>
+      <Option name="component_pos_y" value="81.60000000000002" type="double"/>
+      <Option name="name" value="sedesmunicipais" type="QString"/>
+    </Option>
+  </Option>
+</Option>
