@@ -22,6 +22,7 @@ from qgis.core import (QgsApplication,
                        QgsGeometry,
                        QgsProcessing,
                        QgsProcessingParameterField,
+                       QgsProcessingParameterBoolean,
                        QgsFeatureSink,
                        QgsProcessingException,
                        QgsProcessingAlgorithm,
@@ -33,6 +34,7 @@ class SequencePoints(QgsProcessingAlgorithm):
     POINTS = 'POINTS'
     POLYGONS = 'POLYGONS'
     FIELD = 'FIELD'
+    SAVE = 'SAVE'
     LOC = QgsApplication.locale()
     
     INPUT = 'INPUT'
@@ -95,6 +97,14 @@ class SequencePoints(QgsProcessingAlgorithm):
             )
         )
         
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.SAVE,
+                self.tr('Save Editions', 'Salvar Edições'),
+                defaultValue=False
+            )
+        )
+        
     def processAlgorithm(self, parameters, context, feedback):
 
         pontos = self.parameterAsVectorLayer(
@@ -142,6 +152,15 @@ class SequencePoints(QgsProcessingAlgorithm):
                         pontos.changeAttributeValue(pnt.id(), columnIndex, cont)
             feedback.setProgress(int(current * total))
         
-        pontos.commitChanges() # salva as edições
+        salvar = self.parameterAsBool(
+            parameters,
+            self.SAVE,
+            context
+        )
+        if salvar is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.SAVE))
+        
+        if salvar:
+            pontos.commitChanges() # salva as edições
         
         return {}
