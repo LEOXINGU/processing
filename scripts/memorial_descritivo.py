@@ -196,39 +196,25 @@ calculados.<o:p></o:p></p>
             return self.translate(string[0])
             
     def createInstance(self):
-        # Must return a new copy of your algorithm.
         return MemorialDescritivo()
 
     def name(self):
-        """
-        Returns the unique algorithm name.
-        """
         return 'memorialdescritivo'
 
     def displayName(self):
-        """
-        Returns the translated algorithm name.
-        """
         return self.tr('Descriptive Memorial', 'Memorial Descritivo')
 
     def group(self):
-        """
-        Returns the name of the group this algorithm belongs to.
-        """
         return self.tr('LF Documents', 'LF Documentos')
 
     def groupId(self):
-        """
-        Returns the unique ID of the group this algorithm belongs
-        to.
-        """
         return 'lf_documents'
 
     def shortHelpString(self):
         """
         Returns a localised short help string for the algorithm.
         """
-        return self.tr('Elaboração de Memorial Descritivo a partir de camadas vetorias que definem uma propriedade.')
+        return self.tr('Elaboration of Descriptive Memorials based on vector layers that define a property.','Elaboração de Memorial Descritivo a partir de camadas vetorias que definem uma propriedade.')
 
     def initAlgorithm(self, config=None):
         """
@@ -238,21 +224,21 @@ calculados.<o:p></o:p></p>
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 'INPUT1',
-                self.tr('Vertices'),
+                self.tr('Boundary Survey Points', 'Pontos de Limite'),
                 types=[QgsProcessing.TypeVectorPoint]
             )
         )
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 'INPUT2',
-                self.tr('Limits'),
+                self.tr('Neighborhood Dividing Line', 'Elemento Confrontante'),
                 types=[QgsProcessing.TypeVectorLine]
             )
         )
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 'INPUT3',
-                self.tr('Area'),
+                self.tr('Property Polygon', 'Área do Imóvel'),
                 types=[QgsProcessing.TypeVectorPolygon]
             )
         )
@@ -260,7 +246,7 @@ calculados.<o:p></o:p></p>
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 'HTML',
-                self.tr('Descriptive Memorial'),
+                self.tr('Descriptive Memorial', 'Memorial Descritivo'),
                 self.tr('HTML files (*.html)')
             )
         )
@@ -268,7 +254,7 @@ calculados.<o:p></o:p></p>
     # Acentos para HTML
     def str2HTML(self, texto):
         if texto:
-            dicHTML = {'Á': '&Aacute;',	'á': '&aacute;',	'Â': '&Acirc;',	'â': '&acirc;',	'À': '&Agrave;',	'à': '&agrave;',	'Å': '&Aring;',	'å': '&aring;',	'Ã': '&Atilde;',	'ã': '&atilde;',	'Ä': '&Auml;',	'ä': '&auml;',	'Æ': '&AElig;',	'æ': '&aelig;',	'É': '&Eacute;',	'é': '&eacute;',	'Ê': '&Ecirc;',	'ê': '&ecirc;',	'È': '&Egrave;',	'è': '&egrave;',	'Ë': '&Euml;',	'ë': '&Euml;',	'Ð': '&ETH;',	'ð': '&eth;',	'Í': '&Iacute;',	'í': '&iacute;',	'Î': '&Icirc;',	'î': '&icirc;',	'Ì': '&Igrave;',	'ì': '&igrave;',	'Ï': '&Iuml;',	'ï': '&iuml;',	'Ó': '&Oacute;',	'ó': '&oacute;',	'Ô': '&Ocirc;',	'ô': '&ocirc;',	'Ò': '&Ograve;',	'ò': '&ograve;',	'Ø': '&Oslash;',	'ø': '&oslash;',	'Ù': '&Ugrave;',	'ù': '&ugrave;',	'Ü': '&Uuml;',	'ü': '&uuml;',	'Ç': '&Ccedil;',	'ç': '&ccedil;',	'Ñ': '&Ntilde;',	'ñ': '&ntilde;',	'Ý': '&Yacute;',	'ý': '&yacute;',	'"': '&quot;',	'<': '&lt;',	'>': '&gt;',	'®': '&reg;',	'©': '&copy;',	'\'': '&apos;', 'ª': '&ordf;', 'º': '&ordm', '°':'&deg;'}
+            dicHTML = {'Á': '&Aacute;',	'á': '&aacute;',	'Â': '&Acirc;',	'â': '&acirc;',	'À': '&Agrave;',	'à': '&agrave;',	'Å': '&Aring;',	'å': '&aring;',	'Ã': '&Atilde;',	'ã': '&atilde;',	'Ä': '&Auml;',	'ä': '&auml;',	'Æ': '&AElig;',	'æ': '&aelig;',	'É': '&Eacute;',	'é': '&eacute;',	'Ê': '&Ecirc;',	'ê': '&ecirc;',	'È': '&Egrave;',	'è': '&egrave;',	'Ë': '&Euml;',	'ë': '&Euml;',	'Ð': '&ETH;',	'ð': '&eth;',	'Í': '&Iacute;',	'í': '&iacute;',	'Î': '&Icirc;',	'î': '&icirc;',	'Ì': '&Igrave;',	'ì': '&igrave;',	'Ï': '&Iuml;',	'ï': '&iuml;',	'Ó': '&Oacute;',	'ó': '&oacute;',	'Ô': '&Ocirc;',	'ô': '&ocirc;',	'Ò': '&Ograve;',	'ò': '&ograve;',	'Ø': '&Oslash;',	'ø': '&oslash;',	'Ù': '&Ugrave;',	'ù': '&ugrave;',	'Ü': '&Uuml;',	'ü': '&uuml;',	'Ç': '&Ccedil;',	'ç': '&ccedil;',	'Ñ': '&Ntilde;',	'ñ': '&ntilde;',	'Ý': '&Yacute;',	'ý': '&yacute;',	'"': '&quot;', '”': '&quot;',	'<': '&lt;',	'>': '&gt;',	'®': '&reg;',	'©': '&copy;',	'\'': '&apos;', 'ª': '&ordf;', 'º': '&ordm', '°':'&deg;'}
             for item in dicHTML:
                 if item in texto:
                     texto = texto.replace(item, dicHTML[item])
@@ -321,19 +307,28 @@ calculados.<o:p></o:p></p>
         return (AzAB, AzBA)
 
     # Graus Decimais para DMS
-    def dd2dms(self, dd):
-        is_positive = dd >= 0
-        dd = abs(dd)
-        minutes,seconds = divmod(dd*3600,60)
-        degrees,minutes = divmod(minutes,60)
-        degrees = str(int(degrees)) if is_positive else '-' + str(int(degrees))
-        minutes = int(minutes)
-        return degrees + "&deg;" + str(minutes).zfill(2) + "'" + ("{:.1f}".format(seconds)).zfill(4) + "''"
+    def dd2dms(self, dd, n_digits):
+        if dd != 0:
+            graus = int(floor(abs(dd)))
+            resto = round(abs(dd) - graus, 10)
+            if dd < 0:
+                texto = '-' + str(graus) + '°'
+            else:
+                texto = str(graus) + '°'
+            minutos = int(floor(60*resto))
+            resto = round(resto*60 - minutos, 10)
+            texto = texto + '{:02d}'.format(minutos) + "'"
+            segundos = resto*60
+            if n_digits < 1:
+                texto = texto + '{:02d}'.format(int(segundos)) + '"'
+            else:
+                texto = texto + ('{:0' + str(3+n_digits) + '.' + str(n_digits) + 'f}').format(segundos) + '"'
+            return texto
+        else:
+            return "0°00'" + ('{:0' + str(3+n_digits) + '.' + str(n_digits) + 'f}').format(0)
 
     def processAlgorithm(self, parameters, context, feedback):
-        """
-        Here is where the processing itself takes place.
-        """
+
         vertices = self.parameterAsSource(parameters,
                                                      'INPUT1',
                                                      context)
@@ -363,6 +358,10 @@ calculados.<o:p></o:p></p>
 
         # Pegando o SRC do Projeto
         SRC = QgsProject.instance().crs().description()
+        # Verificando o SRC
+        if QgsProject.instance().crs().isGeographic():
+            raise QgsProcessingException(self.tr('The Project CRS must be projected!', 'O SRC do Projeto deve ser Projetado!'))
+        feedback.pushInfo(self.tr('Project CRS is {}.', 'SRC do Projeto é {}.').format(SRC))
 
         # Dados do levantamento
         #Fields = area.fields()
@@ -419,7 +418,7 @@ calculados.<o:p></o:p></p>
             itens = {'[Vn]': pnts[t[0]+1][2],
                         '[En]': '{:,.2f}'.format(pnts[t[0]+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Nn]': '{:,.2f}'.format(pnts[t[0]+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                        '[Az_n]': self.dd2dms(Az_lista[t[0]]).replace('.', ','),
+                        '[Az_n]': self.str2HTML(self.dd2dms(Az_lista[t[0]]).replace('.', ',')),
                         '[Dist_n]': '{:,.2f}'.format(Dist[t[0]]).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Descr_k]': ListaDescr[w][0],
                         '[Confront_k]': ListaDescr[w][1]
@@ -433,7 +432,7 @@ calculados.<o:p></o:p></p>
                 itens = {'[Vn]': pnts[k+1][2],
                         '[En]': '{:,.2f}'.format(pnts[k+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Nn]': '{:,.2f}'.format(pnts[k+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                        '[Az_n]': self.dd2dms(Az_lista[k]).replace('.', ','),
+                        '[Az_n]': self.str2HTML(self.dd2dms(Az_lista[k]).replace('.', ',')),
                         '[Dist_n]': '{:,.2f}'.format(Dist[k]).replace(',', 'X').replace('.', ',').replace('X', '.')
                         }
                 for item in itens:
@@ -469,6 +468,5 @@ calculados.<o:p></o:p></p>
         
         feedback.pushInfo(self.tr('Operation completed successfully!'))
         feedback.pushInfo('Leandro França - Eng Cart')
-        #iface.messageBar().pushMessage("u'Situacao", "Operacao Concluida com Sucesso!", level=Qgis.Success, duration=5)
         
         return {self.HTML: output}
