@@ -20,8 +20,6 @@ from qgis.core import *
 from numpy import sign, array
 from math import floor, modf
 
-
-
 class Coord2UTMGrid(QgsProcessingAlgorithm):
     POINT = 'POINT'
     SCALE = 'SCALE'
@@ -489,10 +487,7 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
             return None
 
     def processAlgorithm(self, parameters, context, feedback):
-
-        # Retrieve the feature source and sink. The 'dest_id' variable is used
-        # to uniquely identify the feature sink, and must be included in the
-        # dictionary returned by the processAlgorithm function.
+        
         ponto = self.parameterAsPoint(
             parameters,
             self.POINT,

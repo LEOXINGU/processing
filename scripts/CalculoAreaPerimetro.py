@@ -2,6 +2,12 @@
 
 """
 ***************************************************************************
+    CalculoAreaPerimetro.py
+    ---------------------
+    Date                 : Jul 09
+    Copyright            : (C) 2020 by Leandro França
+    Email                : geoleandro.franca@gmail.com
+***************************************************************************
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -10,7 +16,10 @@
 *                                                                         *
 ***************************************************************************
 """
-# CalculoAreaPerimetro.py
+
+__author__ = 'Leandro França'
+__date__ = 'Jul 09'
+__copyright__ = '(C) 2020, Leandro França'
 
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import (QgsProcessing,
