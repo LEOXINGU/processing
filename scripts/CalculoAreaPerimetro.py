@@ -64,7 +64,7 @@ class CalculoAreaPerimitro(QgsProcessingAlgorithm):
         return 'calculateareaperimeter'
 
     def displayName(self):
-        return self.tr('Area and Perimeter Report', 'Relatório de Área e Perímetro')
+        return self.tr('Area and Perimeter Report', 'Planilha de Área e Perímetro')
 
     def group(self):
         return self.tr('LF Documents', 'LF Documentos')

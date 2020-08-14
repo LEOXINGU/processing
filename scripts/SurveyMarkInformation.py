@@ -42,7 +42,6 @@ import math, os, base64, PIL.Image
 class SurveyMarkDoc(QgsProcessingAlgorithm):
 
     PONTOREF = 'PONTOREF'
-    AREAIMOVEL = 'AREAIMOVEL'
     CODIGO = 'CODIGO'
     HTML = 'HTML'
     
@@ -68,7 +67,7 @@ class SurveyMarkDoc(QgsProcessingAlgorithm):
         return 'surveymarkdoc'
 
     def displayName(self):
-        return self.tr('Survey Mark Informations', 'Monografia de Marcos')
+        return self.tr('Geodetic Landmark Informations', 'Monografia de Marco Geodésico')
 
     def group(self):
         return self.tr('LF Documents', 'LF Documentos')
@@ -87,14 +86,6 @@ class SurveyMarkDoc(QgsProcessingAlgorithm):
                 self.PONTOREF,
                 self.tr('Survey Landmark', 'Marco Geodésico'),
                 types=[QgsProcessing.TypeVectorPoint]
-            )
-        )
-        
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.AREAIMOVEL,
-                self.tr('Property Polygon', 'Área do Imóvel'),
-                types=[QgsProcessing.TypeVectorPolygon]
             )
         )
         
@@ -200,20 +191,15 @@ class SurveyMarkDoc(QgsProcessingAlgorithm):
         vertice = self.parameterAsSource(parameters,
                                                      self.PONTOREF,
                                                      context)
-        area = self.parameterAsSource(parameters,
-                                                     self.AREAIMOVEL,
-                                                     context)
+        
         codigo = self.parameterAsString(parameters,
                                                      self.CODIGO,
                                                      context)
         
         if vertice is None:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.PONTOREF))
-        if area is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.AREAIMOVEL))
         if codigo is None:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.CODIGO))
-        
         
         
         # Pegando o SRC do Projeto
@@ -222,6 +208,7 @@ class SurveyMarkDoc(QgsProcessingAlgorithm):
         # Verificando o SRC do Projeto
         if QgsProject.instance().crs().isGeographic():
             raise QgsProcessingException(self.tr('The Project CRS must be projected!', 'O SRC do Projeto deve ser Projetado!'))
+        
         feedback.pushInfo(self.tr('Project CRS is {}.', 'SRC do Projeto é {}.').format(SRC))
         
         # Transformar Coordenadas de Geográficas para o sistema UTM
@@ -229,20 +216,18 @@ class SurveyMarkDoc(QgsProcessingAlgorithm):
         coordinateTransformer.setDestinationCrs(QgsProject.instance().crs())
         coordinateTransformer.setSourceCrs(QgsCoordinateReferenceSystem('EPSG:4674'))
         
-        # Dados do levantamento
-        #Fields = area.fields()
-        #fieldnames = [field.name() for field in Fields]
-        for feat in area.getFeatures():
-                area = feat
-                break
-        
         expr = QgsExpression( "\"codigo\"='{}'".format( codigo ) )
         pnt = False
         for feat in vertice.getFeatures(QgsFeatureRequest( expr )):
             pnt = feat.geometry().asMultiPoint()[0]
             ponto = feat
             break
-                
+        
+        # Verificando se o código do marco é válido
+        if not pnt:
+            erro_txt = self.tr('The survey mark code {} is not valid!'.format(codigo), 'O código do marco {} não é válido!'.format(codigo))
+            raise QgsProcessingException(erro_txt)
+        
         pnts_UTM = coordinateTransformer.transform(pnt)
         
         TEXTO = '''<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -397,9 +382,9 @@ MINIST&Eacute;RIO DA DEFESA</span><br style="font-weight: bold;">
         # Inserindo dados iniciais do levantamento
         itens = {'[CD]': self.str2HTML(ponto['codigo']),
                 '[TP]':  self.str2HTML(tipos[ponto['tipoptorefgeodtopo']]) ,
-                '[NI]':  self.str2HTML(area['imóvel']),
-                '[MUN]': self.str2HTML(area['município']),
-                '[UF]':  self.str2HTML(area['UF']),
+                '[NI]':  self.str2HTML(ponto['imóvel']),
+                '[MUN]': self.str2HTML(ponto['município']),
+                '[UF]':  self.str2HTML(ponto['UF']),
                 '[LON]': self.str2HTML(self.dd2dms(pnt.x(),4)),
                 '[LAT]': self.str2HTML(self.dd2dms(pnt.y(),4)),
                 '[h]': '{:,.3f}'.format(ponto['altitude']).replace(',', 'X').replace('.', ',').replace('X', '.'),
@@ -420,8 +405,8 @@ MINIST&Eacute;RIO DA DEFESA</span><br style="font-weight: bold;">
                 '[PROC_RESP]': self.str2HTML(ponto['proc_resp']),
                 '[MON_DT]': self.str2HTML(((ponto['monografia_data']).toPyDate()).strftime("%d/%m/%Y")),
                 '[MON_RESP]': self.str2HTML(ponto['monografia_resp']),
-                '[REP_TEC]':  self.str2HTML(area['Resp_Tecnico']),
-                '[CREA]': self.str2HTML(area['CREA']),
+                '[REP_TEC]':  self.str2HTML(ponto['Resp_Tecnico']),
+                '[CREA]': self.str2HTML(ponto['CREA']),
                 '[COD_INCRA]': self.str2HTML(ponto['codigo_credenciado']),
                 '[DESCR]': self.str2HTML(ponto['descricao']),
                 '[FOTO_MARCO]': self.img2html_resized(ponto['foto_marco']) if ponto['foto_marco'] else '',

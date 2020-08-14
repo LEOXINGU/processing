@@ -347,7 +347,7 @@ class Estimate3dCoord(QgsProcessingAlgorithm):
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span></b><!--[endif]--><b>''' + self.tr('Inputs', 'Dados de Entrada') + '''<o:p></o:p></b></p>
 <p class="MsoNormal" style="text-align: center;"
- align="center"><span style="font-style: italic;">''' + self.tr('Coordinates of Optical Centers','Coordenadas dos Centros &Oacute;pticos')+ '''</span><o:p></o:p></p>
+ align="center"><span style="font-style: italic;">''' + self.tr('Coordinates of the Optical Centers','Coordenadas dos Centros &Oacute;pticos')+ '''</span><o:p></o:p></p>
 <div align="center">
 <table class="MsoTableGrid"
  style="border: medium none ; border-collapse: collapse;"
