@@ -123,7 +123,7 @@ class StdDevEllipse(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.AGRUPAR,
-                self.tr('Group by Field', 'Agrupar por Campo'),
+                self.tr('Group by Attribute', 'Agrupar por Atributo'),
                 defaultValue=True))
                 
         self.addParameter(
@@ -255,14 +255,20 @@ class StdDevEllipse(QgsProcessingAlgorithm):
             y = np.array(dic[grupo]['y'])
             w = dic[grupo]['w']
             
-            # Ponto Central
-            mediaX = x.mean()
-            mediaY = y.mean()
-
+            if len(x)==1:
+                raise QgsProcessingException(self.tr("Invalid Group Field!","Campo de Agrupamento Inválido!"))
+            
             if Peso:
-                MVC = np.cov(x,y, fweights = w)
+                if (np.array(w) > 0).sum() > 1: # Mais de um ponto com peso maior que zero
+                    MVC = np.cov(x,y, fweights = w)
+                    mediaX = float(np.average(x, weights = w))
+                    mediaY = float(np.average(y, weights = w))
+                else:
+                    continue
             else:
                 MVC = np.cov(x,y)
+                mediaX = float(np.average(x))
+                mediaY = float(np.average(y))
 
             σ2x = MVC[0][0]
             σ2y = MVC[1][1]
@@ -271,7 +277,7 @@ class StdDevEllipse(QgsProcessingAlgorithm):
             # Elipse de Erro para um determinado desvio-padrão
             # Centro da Elipse
             C=[mediaX, mediaY]
-            # Auto valores e autovetores de A
+            # Auto valores e autovetores da MVC
             Val, Vet = np.linalg.eig(np.matrix(MVC))
             λ1 = Val[0]
             λ2 = Val[1]

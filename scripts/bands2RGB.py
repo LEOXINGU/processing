@@ -89,6 +89,7 @@ class Bands2RGB(QgsProcessingAlgorithm):
     G = 'G'
     B = 'B'
     RGB = 'RGB'
+    OPEN = 'OPEN'
     
     def initAlgorithm(self, config=None):
         # INPUT
@@ -126,6 +127,14 @@ class Bands2RGB(QgsProcessingAlgorithm):
             )
         )
         
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.OPEN,
+                self.tr('Load RGB output', 'Carregar RGB de saída'),
+                defaultValue= True
+            )
+        )
+        
     def processAlgorithm(self, parameters, context, feedback):
 
         Band_R = self.parameterAsRasterLayer(
@@ -155,6 +164,12 @@ class Bands2RGB(QgsProcessingAlgorithm):
         RGB_Output = self.parameterAsFileOutput( 
             parameters,
             self.RGB,
+            context
+        )
+        
+        Carregar = self.parameterAsBool( 
+            parameters,
+            self.OPEN,
             context
         )
         
@@ -193,11 +208,14 @@ class Bands2RGB(QgsProcessingAlgorithm):
         feedback.pushInfo(self.tr('Operation completed successfully!', 'Operação finalizada com sucesso!'))
         feedback.pushInfo('Leandro França - Eng Cart')
         self.CAMINHO = RGB_Output
+        self.CARREGAR = Carregar
         return {self.RGB: RGB_Output}
     
     # Carregamento de arquivo de saída
     CAMINHO = ''
+    CARREGAR = True
     def postProcessAlgorithm(self, context, feedback):
-        rlayer = QgsRasterLayer(self.CAMINHO, self.tr('RGB Composite', 'Composição RGB'))
-        QgsProject.instance().addMapLayer(rlayer)
+        if self.CARREGAR:
+            rlayer = QgsRasterLayer(self.CAMINHO, self.tr('RGB Composite', 'Composição RGB'))
+            QgsProject.instance().addMapLayer(rlayer)
         return {}

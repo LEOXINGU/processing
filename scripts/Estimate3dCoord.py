@@ -31,6 +31,7 @@ class Estimate3dCoord(QgsProcessingAlgorithm):
     WEIGHT = 'WEIGHT'
     OPENOUTPUT = 'OPENOUTPUT'
     HTML = 'HTML'
+    OPEN = 'OPEN'
     
     LOC = QgsApplication.locale()
     
@@ -122,16 +123,6 @@ class Estimate3dCoord(QgsProcessingAlgorithm):
             )
         )
         
-        '''
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                self.OPENOUTPUT,
-                self.tr('Open output file after executing the algorithm'),
-                defaultValue = True
-            )
-        )
-        '''
-        
         # 'OUTPUT'
         self.addParameter(
             QgsProcessingParameterFileDestination(
@@ -146,6 +137,14 @@ class Estimate3dCoord(QgsProcessingAlgorithm):
                 'HTML',
                 self.tr('Adjustment Report', 'Relatório de Ajustamento'),
                 self.tr('HTML files (*.html)')
+            )
+        )
+        
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.OPEN,
+                self.tr('Open output file after executing the algorithm', 'Abrir arquivo de saída com coordenadas 3D'),
+                defaultValue= True
             )
         )
     
@@ -233,6 +232,8 @@ class Estimate3dCoord(QgsProcessingAlgorithm):
             self.OUTPUT,
             context
         )
+        if output[-3:] != 'xls':
+            output += '.xls'
         
         html_output = self.parameterAsFileOutput(
             parameters, 
@@ -622,11 +623,24 @@ Obs.: ''' + self.tr('The inverse of the distances to the diagonal of the Weight 
         feedback.pushInfo(self.tr('Operation completed successfully!', 'Operação finalizada com sucesso!'))
         feedback.pushInfo(self.tr('Leandro França - Eng Cart', 'Leandro Franca - Cartographic Engineer'))
         
-        '''
-        if abrir_arquivo:
-            layer = QgsVectorLayer(output, self.tr("Adjusted 3D Coordinates"), "ogr")
-            QgsProject.instance().addMapLayer(layer)
-        '''
+        Carregar = self.parameterAsBool( 
+            parameters,
+            self.OPEN,
+            context
+        )
+        
+        self.CAMINHO = output
+        self.CARREGAR = Carregar
         
         return {self.OUTPUT: output,
                 self.HTML: html_output}
+    
+    
+    # Carregamento de arquivo de saída
+    CAMINHO = ''
+    CARREGAR = True
+    def postProcessAlgorithm(self, context, feedback):
+        if self.CARREGAR:
+            vlayer = QgsVectorLayer(self.CAMINHO, self.tr('Adjusted 3D Coordinates', 'Coordenadas 3D Ajustadas'), "ogr")
+            QgsProject.instance().addMapLayer(vlayer)
+        return {}
