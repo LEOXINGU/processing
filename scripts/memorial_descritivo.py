@@ -31,7 +31,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFileDestination,
                        QgsApplication)
 from processing.algs.qgis.QgisAlgorithm import QgisAlgorithm
-from math import atan, pi, sqrt
+from math import atan, pi, sqrt, floor
 import math
 
 class MemorialDescritivo(QgisAlgorithm):
@@ -425,7 +425,7 @@ calculados.<o:p></o:p></p>
             itens = {'[Vn]': pnts[t[0]+1][2],
                         '[En]': '{:,.2f}'.format(pnts[t[0]+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Nn]': '{:,.2f}'.format(pnts[t[0]+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                        '[Az_n]': self.str2HTML(self.dd2dms(Az_lista[t[0]]).replace('.', ',')),
+                        '[Az_n]': self.str2HTML(self.dd2dms(Az_lista[t[0]],2).replace('.', ',')),
                         '[Dist_n]': '{:,.2f}'.format(Dist[t[0]]).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Descr_k]': ListaDescr[w][0],
                         '[Confront_k]': ListaDescr[w][1]
@@ -439,7 +439,7 @@ calculados.<o:p></o:p></p>
                 itens = {'[Vn]': pnts[k+1][2],
                         '[En]': '{:,.2f}'.format(pnts[k+1][0].x()).replace(',', 'X').replace('.', ',').replace('X', '.'),
                         '[Nn]': '{:,.2f}'.format(pnts[k+1][0].y()).replace(',', 'X').replace('.', ',').replace('X', '.'),
-                        '[Az_n]': self.str2HTML(self.dd2dms(Az_lista[k]).replace('.', ',')),
+                        '[Az_n]': self.str2HTML(self.dd2dms(Az_lista[k],2).replace('.', ',')),
                         '[Dist_n]': '{:,.2f}'.format(Dist[k]).replace(',', 'X').replace('.', ',').replace('X', '.')
                         }
                 for item in itens:
