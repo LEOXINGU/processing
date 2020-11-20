@@ -114,7 +114,7 @@ class CreateHolesInRaster(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 self.RasterOUT,
-                self.tr('Patched Image', 'Imagem Remendada'),
+                self.tr('Bumpy Raster', 'Raster Esburacado'),
                 fileFilter = '.tif'
             )
         )
@@ -122,7 +122,7 @@ class CreateHolesInRaster(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.OPEN,
-                self.tr('Load patched Image', 'Carregar Imagem Remendada'),
+                self.tr('Load Output Raster', 'Carregar Imagem de Saída'),
                 defaultValue= True
             )
         )
