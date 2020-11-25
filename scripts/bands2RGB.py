@@ -220,9 +220,6 @@ class Bands2RGB(QgsProcessingAlgorithm):
         self.CARREGAR = Carregar
         return {self.RGB: RGB_Output}
     
-    # Carregamento de arquivo de saída
-    CAMINHO = ''
-    CARREGAR = True
     def postProcessAlgorithm(self, context, feedback):
         if self.CARREGAR:
             rlayer = QgsRasterLayer(self.CAMINHO, self.tr('RGB Composite', 'Composição RGB'))
