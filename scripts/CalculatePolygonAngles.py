@@ -48,7 +48,7 @@ class CalculatePolygonAngles(QgsProcessingAlgorithm):
         return 'calculatepolygonangles'
 
     def displayName(self):
-        return self.tr('Calculate Polygon Angles')
+        return self.tr('Calculate Polygon Angles', 'Calcular ângulos de Polígono')
 
     def group(self):
         return self.tr('LF Vector')
