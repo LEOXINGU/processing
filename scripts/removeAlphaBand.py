@@ -197,6 +197,6 @@ class RemoveAlphaBand(QgsProcessingAlgorithm):
     
     def postProcessAlgorithm(self, context, feedback):
         if self.CARREGAR:
-            rlayer = QgsRasterLayer(self.CAMINHO, self.tr('Raster with Alpha Band Removed', 'Raster com banda alfa removida'))
+            rlayer = QgsRasterLayer(self.CAMINHO, self.tr('Raster without alpha band.', 'Raster sem banda alfa'))
             QgsProject.instance().addMapLayer(rlayer)
         return {}
