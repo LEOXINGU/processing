@@ -144,18 +144,20 @@ class StdDevEllipse(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterField(
                 self.CAMPO_PESO,
-                self.tr('Weight Field (Optional)', 'Campo de Peso (Opcional)'),
+                self.tr('Weight Field', 'Campo de Peso'),
                 parentLayerParameterName=self.INPUT,
-                type=QgsProcessingParameterField.Numeric
+                type=QgsProcessingParameterField.Numeric,
+                optional=True
             )
         )
                 
         self.addParameter(
             QgsProcessingParameterField(
                 self.CAMPO_AGRUPAR,
-                self.tr('Group Field (Optional)', 'Campo de Agrupamento (Opcional)'),
+                self.tr('Group Field', 'Campo de Agrupamento'),
                 parentLayerParameterName=self.INPUT,
-                type=QgsProcessingParameterField.Any
+                type=QgsProcessingParameterField.Any,
+                optional=True
             )
         )
 
@@ -195,6 +197,8 @@ class StdDevEllipse(QgsProcessingAlgorithm):
             self.CAMPO_PESO,
             context
         )
+        if Peso and not Campo_Peso:
+            raise QgsProcessingException(self.tr('Insert Weight Field!', 'Insira o Campo Peso!'))
         
         Agrupar = self.parameterAsBool(
             parameters,
@@ -207,10 +211,14 @@ class StdDevEllipse(QgsProcessingAlgorithm):
             self.CAMPO_AGRUPAR,
             context
         )
+        if Agrupar and not Campo_Agrupar:
+            raise QgsProcessingException(self.tr('Insert Group Field!', 'Insira o Campo de Agupamento!'))
 
         # Field index
-        Campo_Peso = layer.fields().indexFromName(Campo_Peso[0])
-        Campo_Agrupar = layer.fields().indexFromName(Campo_Agrupar[0])
+        if Peso:
+            Campo_Peso = layer.fields().indexFromName(Campo_Peso[0])
+        if Agrupar:
+            Campo_Agrupar = layer.fields().indexFromName(Campo_Agrupar[0])
 
         # OUTPUT
         GeomType = QgsWkbTypes.Polygon
@@ -218,12 +226,13 @@ class StdDevEllipse(QgsProcessingAlgorithm):
         CRS = layer.sourceCrs()
         itens  = {
              'id' : QVariant.Int,
-             'group': QVariant.String,
+             self.tr('group','grupo'): QVariant.String,
              'avg_x' : QVariant.Double,
              'avg_y' : QVariant.Double,
              'n_std': QVariant.Int,
              'std_x' : QVariant.Double,
              'std_y' : QVariant.Double,
+             self.tr('rotation','rotação'): QVariant.Double,
              'major_axis': QVariant.Double,
              'minor_axis': QVariant.Double
              }
@@ -248,9 +257,13 @@ class StdDevEllipse(QgsProcessingAlgorithm):
                 if grupo in dic:
                     dic[grupo]['x'] = dic[grupo]['x'] + [pnt.x()]
                     dic[grupo]['y'] = dic[grupo]['y'] + [pnt.y()]
-                    dic[grupo]['w'] = dic[grupo]['w'] + [int(feat[Campo_Peso])]
+                    if Peso:
+                        dic[grupo]['w'] = dic[grupo]['w'] + [int(feat[Campo_Peso])]
                 else:
-                    dic[grupo] = {'x':[pnt.x()], 'y':[pnt.y()], 'w':[int(feat[Campo_Peso])]}
+                    if Peso:
+                        dic[grupo] = {'x':[pnt.x()], 'y':[pnt.y()], 'w':[int(feat[Campo_Peso])]}
+                    else:
+                        dic[grupo] = {'x':[pnt.x()], 'y':[pnt.y()]}
         else:
             dic = {}
             for feat in layer.getFeatures():
@@ -259,16 +272,21 @@ class StdDevEllipse(QgsProcessingAlgorithm):
                 if grupo in dic:
                     dic[grupo]['x'] = dic[grupo]['x'] + [pnt.x()]
                     dic[grupo]['y'] = dic[grupo]['y'] + [pnt.y()]
-                    dic[grupo]['w'] = dic[grupo]['w'] + [int(feat[Campo_Peso])]
+                    if Peso:
+                        dic[grupo]['w'] = dic[grupo]['w'] + [int(feat[Campo_Peso])] 
                 else:
-                    dic[grupo] = {'x':[pnt.x()], 'y':[pnt.y()], 'w':[int(feat[Campo_Peso])]}
+                    if Peso:
+                        dic[grupo] = {'x':[pnt.x()], 'y':[pnt.y()], 'w':[int(feat[Campo_Peso])]}
+                    else:
+                        dic[grupo] = {'x':[pnt.x()], 'y':[pnt.y()]}
         
         feature = QgsFeature()
         total = 100.0 / len(dic) if len(dic) else 0
         for current, grupo in enumerate(dic):
             x = np.array(dic[grupo]['x'])
             y = np.array(dic[grupo]['y'])
-            w = dic[grupo]['w']
+            if Peso:
+                w = dic[grupo]['w']
             
             if len(x)==1:
                 raise QgsProcessingException(self.tr("Invalid Group Field!","Campo de Agrupamento Inválido!"))
@@ -278,12 +296,16 @@ class StdDevEllipse(QgsProcessingAlgorithm):
                     MVC = np.cov(x,y, fweights = w)
                     mediaX = float(np.average(x, weights = w))
                     mediaY = float(np.average(y, weights = w))
+                    std_X = float(np.sqrt(np.average((x-mediaX)**2, weights = w)))
+                    std_Y = float(np.sqrt(np.average((y-mediaY)**2, weights = w)))
                 else:
                     continue
             else:
                 MVC = np.cov(x,y)
                 mediaX = float(np.average(x))
                 mediaY = float(np.average(y))
+                std_X = float(np.std(x))
+                std_Y = float(np.std(y))
 
             σ2x = MVC[0][0]
             σ2y = MVC[1][1]
@@ -305,8 +327,8 @@ class StdDevEllipse(QgsProcessingAlgorithm):
              
             # Determinando os pontos da Elipse
             p = np.arange(0,2*pi,0.1)
-            x_ell = Tam*c1*cos(p)
-            y_ell = Tam*c2*sin(p)
+            x_ell = np.sqrt(2*Tam**2)*c1*cos(p) # 90%: sqrt(4.605), 95%:sqrt(5.991), 99%: sqrt(9.210) 
+            y_ell = np.sqrt(2*Tam**2)*c2*sin(p)
             M1 = np.matrix([x_ell, y_ell])
             # Rotacionando phi de x e y
             if σ2x < σ2y:
@@ -328,13 +350,14 @@ class StdDevEllipse(QgsProcessingAlgorithm):
             feat.setGeometry(pol)
             cont = 1
             if σ2x < σ2y:
-                feat.setAttributes([cont, str(grupo), float(mediaX), float(mediaY), Tam, 
-                                              float(x.std()),float(y.std()), 
-                                              float(c1), float(c2)])
+                att = [cont, str(grupo), mediaX, mediaY, Tam, 
+                       std_X,std_Y, float(np.degrees(phi)),
+                       float(Tam*c1), float(Tam*c2)]
             else:
-                feat.setAttributes([cont, str(grupo), float(mediaX), float(mediaY), Tam,
-                                              float(x.std()),float(y.std()), 
-                                              float(c2), float(c1)])
+                att = [cont, str(grupo), mediaX, mediaY, Tam, 
+                       std_X,std_Y, float(np.degrees(phi)),
+                       float(Tam*c2), float(Tam*c1)]
+            feat.setAttributes(att)
             
             sink.addFeature(feat, QgsFeatureSink.FastInsert)
             if feedback.isCanceled():
