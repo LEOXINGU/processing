@@ -103,19 +103,20 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
         )
 
         self.addParameter(
-            QgsProcessingParameterField(
-                self.Z,
-                self.tr('Z Coordinate', 'Coordenada Z'),
-                parentLayerParameterName=self.TABLE,
-                type=QgsProcessingParameterField.Numeric
-            )
-        )
-
-        self.addParameter(
             QgsProcessingParameterBoolean(
                 self.BOOL,
                 self.tr('Create PointZ', 'Criar PointZ'),
                 defaultValue=False))
+        
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.Z,
+                self.tr('Z Coordinate', 'Coordenada Z'),
+                parentLayerParameterName=self.TABLE,
+                type=QgsProcessingParameterField.Numeric,
+                optional = True
+            )
+        )
 
         self.addParameter(
             QgsProcessingParameterCrs(
@@ -153,29 +154,30 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
             self.Y,
             context
         )
-
-        Z_field = self.parameterAsFields(
-            parameters,
-            self.Z,
-            context
-        )
-
+        
+        # Field index
+        X_id = table.fields().indexFromName(X_field[0])
+        Y_id = table.fields().indexFromName(Y_field[0])
+        
         CreateZ = self.parameterAsBool(
             parameters,
             self.BOOL,
             context
         )
+        
+        if CreateZ:
+            Z_field = self.parameterAsFields(
+                parameters,
+                self.Z,
+                context
+            )
+            Z_id = table.fields().indexFromName(Z_field[0])
 
         CRS = self.parameterAsCrs(
             parameters,
             self.CRS,
             context
         )
-
-        # Field index
-        X_id = table.fields().indexFromName(X_field[0])
-        Y_id = table.fields().indexFromName(Y_field[0])
-        Z_id = table.fields().indexFromName(Z_field[0])
 
         # OUTPUT
         Fields = table.fields()
@@ -196,8 +198,8 @@ class CoordinatesToLayer(QgsProcessingAlgorithm):
             att = feat.attributes()
             X = att[X_id]
             Y = att[Y_id]
-            Z = att[Z_id]
             if CreateZ:
+                Z = att[Z_id]
                 geom = QgsGeometry(QgsPoint(float(X), float(Y), float(Z)))
             else:
                 geom = QgsGeometry.fromPointXY(QgsPointXY(float(X), float(Y)))
