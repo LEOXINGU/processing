@@ -85,7 +85,7 @@ class StdDevEllipse(QgsProcessingAlgorithm):
             return self.tr("")
     
     def tags(self):
-        return self.tr('ellipse,elipse,confidence,deviational,tendency,dispertion,directional,trend,covariance,mvc').split(',')
+        return self.tr('ellipse,elipse,confidence,deviational,standard,tendency,dispertion,directional,trend,confidence,covariance,mvc').split(',')
         
     def shortHelpString(self):
         txt_en = 'Creates ellipses based on the covariance matrix to summarize the spatial characteristics of point type geographic features: central tendency, dispersion, and directional trends.'
