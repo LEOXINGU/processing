@@ -242,6 +242,7 @@ class InventoryRaster(QgsProcessingAlgorithm):
             cols = image.RasterXSize # Number of columns
             rows = image.RasterYSize # Number of rows
             CRS= QgsCoordinateReferenceSystem(prj) # Create CRS
+            image=None # Close image
             
             # Creating BBox
             coord = [[QgsPointXY(ulx, uly),
