@@ -46,7 +46,7 @@ from qgis.core import (QgsProcessing,
                        QgsRasterLayer,
                        QgsCoordinateTransform,
                        QgsCoordinateReferenceSystem)
-import gdal
+import gdal # https://gdal.org/python/
 from osgeo import osr, gdal_array
 import os
 import numpy as np
@@ -186,7 +186,7 @@ class LoadRasterByLocation(QgsProcessingAlgorithm):
         feedback.pushInfo(self.tr('Verifying raster files...', 'Verificando arquivos raster...'))
         selecao = []
         for current, file_path in enumerate(lista):
-            image = gdal.Open(file_path) # https://gdal.org/python/
+            image = gdal.Open(file_path)
             prj=image.GetProjection() # wkt 
             ulx, xres, xskew, uly, yskew, yres  = image.GetGeoTransform()
             cols = image.RasterXSize # Number of columns

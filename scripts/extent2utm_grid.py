@@ -21,6 +21,7 @@ from numpy import sign, array, arange
 from math import floor, modf
 import math
 from numpy.linalg import norm
+from pyproj.crs import CRS
 
 class Extent2UTMGrid(QgsProcessingAlgorithm):
 
@@ -545,16 +546,18 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         return (int(fuso), hemisf)
     
     
-    def MeridianConvergence(self, lon, lat):
+    def MeridianConvergence(self, lon, lat, src):
         # Calculo do Fuso
         fuso = round((183+lon)/6.0)
         # Calculo do Meridiano Central
         MC = 6*fuso-183
         # Fator de distorcao inicial
         kappaZero = 0.9996
-        # Semi-eixos do Elipsoide SIRGAS 2000
-        a = 6378137.0
-        b = 6356752.314140356
+        # Semi-eixos
+        EPSG = int(src.authid().split(':')[-1])
+        proj_crs = CRS.from_epsg(EPSG)
+        a=proj_crs.ellipsoid.semi_major_metre
+        b=proj_crs.ellipsoid.semi_minor_metre
         # Calculo da Convergencia Meridiana
         delta_lon = abs( MC - lon )
         p = 0.0001*( delta_lon*3600 )
@@ -601,7 +604,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                     distY = dist
         largura = distX/escala*1000
         altura = distY/escala*1000
-        return (altura, largura)      
+        return (altura, largura)
     
     
     def processAlgorithm(self, parameters, context, feedback):
@@ -612,9 +615,9 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
         context
         )
         y_min = extensao.yMinimum()
-        y_max =  extensao.yMaximum()
-        x_min =  extensao.xMinimum()
-        x_max =  extensao.xMaximum()
+        y_max = extensao.yMaximum()
+        x_min = extensao.xMinimum()
+        x_max = extensao.xMaximum()
 
         ProjectCRS = QgsProject.instance().crs()
         if not ProjectCRS.isGeographic():
@@ -767,7 +770,7 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
                     feat[self.tr('width', 'largura')] = float(self.ChartSize(geom, zone, hemisf, escala)[1])
                 
                 if mer_conv:
-                    feat[self.tr('MC', 'CM')] = float(self.MeridianConvergence(centroide.x(), centroide.y()))
+                    feat[self.tr('MC', 'CM')] = float(self.MeridianConvergence(centroide.x(), centroide.y(), crs))
                 
                 if zone_hemisf:
                     zone, hemisf = self.GetUtmZone(lon, lat)

@@ -252,7 +252,7 @@ class RescaleTo8bits(QgsProcessingAlgorithm):
                 transf = ((transf>0)*(transf<=255))*transf + 255*(transf>255) +1*(transf<1)
             transf = transf.astype('uint8')
             outband = Driver.GetRasterBand(k+1)
-        #    feedback.pushInfo(self.tr('Writing Band {}...'.format(k+1), 'Escrevendo Banda {}...'.format(k+1)))
+            feedback.pushInfo(self.tr('Writing Band {}...'.format(k+1), 'Escrevendo Banda {}...'.format(k+1)))
             outband.WriteArray(transf)
             if nullPixel:
                 outband.SetNoDataValue(0)
