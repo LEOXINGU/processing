@@ -38,6 +38,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterFileDestination,
                        QgsProcessingParameterMultipleLayers,
+                       QgsProcessingParameterVectorLayer,
                        QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterRasterDestination,
                        QgsApplication,
@@ -109,6 +110,8 @@ class MosaicRaster(QgsProcessingAlgorithm):
     OVERLAP = 'OVERLAP'
     NULLVALUE = 'NULLVALUE'
     RESAMPLING = 'RESAMPLING'
+    CLIP = 'CLIP'
+    FRAME = 'FRAME'
     MOSAIC = 'MOSAIC'
     OPEN = 'OPEN'
     
@@ -133,7 +136,7 @@ class MosaicRaster(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.RESOLUTION,
-                self.tr('New Resolution', 'Nova resolução espacial'),
+                self.tr('New Resolution (meters)', 'Nova resolução espacial (metros)'),
                 type =1, #Double = 1 and Integer = 0
                 defaultValue = 100,
                 optional = True
@@ -174,6 +177,23 @@ class MosaicRaster(QgsProcessingAlgorithm):
                 self.tr('Null value', 'Valor nulo'),
                 type =0, #Double = 1 and Integer = 0
                 defaultValue = 0
+            )
+        )
+        
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.CLIP,
+                self.tr('Clip by frame', 'Cortar pela moldura'),
+                defaultValue = False
+            )
+        )
+        
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                self.FRAME,
+                self.tr('Frame', 'Moldura'),
+                [QgsProcessing.TypeVectorPolygon],
+                optional = True
             )
         )
         
@@ -298,6 +318,21 @@ class MosaicRaster(QgsProcessingAlgorithm):
             context
         )
         
+        moldura = self.parameterAsDouble( 
+            parameters,
+            self.CLIP,
+            context
+        )
+        
+        if moldura:
+            vlayer = self.parameterAsVectorLayer(
+                parameters,
+                self.FRAME,
+                context
+            )
+            if vlayer is None:
+                raise QgsProcessingException(self.invalidSourceError(parameters, self.FRAME))
+        
         # output
         
         Output = self.parameterAsFileOutput( 
@@ -363,16 +398,27 @@ class MosaicRaster(QgsProcessingAlgorithm):
         xres = np.mean(XRES)
         yres = np.mean(YRES)
 
-        # Mesclar geometrias e obter a extensão
-        new_geom = QgsGeometry()
-        new_geom = new_geom.unaryUnion(geoms)
-        extensao = new_geom.boundingBox()
-
-        # Coodenadas máxima e mínima da extensão
-        y_min = extensao.yMinimum()
-        y_max = extensao.yMaximum()
-        x_min = extensao.xMinimum()
-        x_max = extensao.xMaximum()
+        if moldura: # Pegar extensão X e Y da moldura
+            # SRC da moldura deve ser o mesmo dos raster
+            if vlayer.sourceCrs() != QgsCoordinateReferenceSystem(prj):
+                raise QgsProcessingException(self.tr("The frame's CRS must be iqual to the rasters' CRS!", 'O SRC da moldura deve ser igual ao SRC dos rasters!'))
+            for feat in vlayer.getFeatures():
+                moldura_geom = feat.geometry()
+                break
+            moldura_rect = moldura_geom.boundingBox()
+            y_min = moldura_rect.yMinimum()
+            y_max = moldura_rect.yMaximum()
+            x_min = moldura_rect.xMinimum()
+            x_max = moldura_rect.xMaximum()
+        else: # Mesclar geometrias e obter a extensão
+            new_geom = QgsGeometry()
+            new_geom = new_geom.unaryUnion(geoms)
+            extensao = new_geom.boundingBox()
+            # Coodenadas máxima e mínima da extensão
+            y_min = extensao.yMinimum()
+            y_max = extensao.yMaximum()
+            x_min = extensao.xMinimum()
+            x_max = extensao.xMaximum()
 
         # Transformar resolucao de metros para graus, se o SRC for Geográfico
         src_qgis = QgsCoordinateReferenceSystem(prj)
@@ -385,19 +431,30 @@ class MosaicRaster(QgsProcessingAlgorithm):
             N = a/np.sqrt(1-e2*(np.sin((y_min+y_max)/2))**2) # Raio de curvatura 1º vertical
             M = a*(1-e2)/(1-e2*(np.sin((y_min+y_max)/2))**2)**(3/2.) # Raio de curvatura meridiana
             R = np.sqrt(M*N) # Raio médio de Gauss
-            resolucao /= R
+            theta = resolucao/R
+            resolucao = np.degrees(theta) # Radianos para graus
 
         # Definir n_col, n_lin e resolucao
-        if muda_res:
-            n_lin = round((y_max-y_min)/abs(resolucao))
-            n_col = round((x_max-x_min)/abs(resolucao))
-            xres = resolucao
-            yres = -resolucao
-        else:
-            n_lin = round((y_max-y_min)/abs(yres))
-            n_col = round((x_max-x_min)/abs(xres))
+        if moldura:
+            if muda_res:
+                n_lin = round((y_max-y_min)/abs(resolucao))
+                n_col = round((x_max-x_min)/abs(resolucao))
+            else:
+                n_lin = round((y_max-y_min)/abs(yres))
+                n_col = round((x_max-x_min)/abs(xres))
             xres = (x_max-x_min)/n_col
             yres = -(y_max-y_min)/n_lin
+        else:
+            if muda_res:
+                n_lin = round((y_max-y_min)/abs(resolucao))
+                n_col = round((x_max-x_min)/abs(resolucao))
+                xres = resolucao
+                yres = -resolucao
+            else:
+                n_lin = round((y_max-y_min)/abs(yres))
+                n_col = round((x_max-x_min)/abs(xres))
+                xres = (x_max-x_min)/n_col
+                yres = -(y_max-y_min)/n_lin
 
         # Geotransform do Mosaico
         ulx = x_min
@@ -407,7 +464,6 @@ class MosaicRaster(QgsProcessingAlgorithm):
         origem = (ulx, uly)
         resol_X = abs(xres)
         resol_Y = abs(yres)
-    
 
         # Numeração das Imagens
         valores = list(range(1,len(lista)+1))
@@ -485,6 +541,8 @@ class MosaicRaster(QgsProcessingAlgorithm):
         for classe in classes:
             feedback.pushInfo((self.tr('Classifying class {}...', 'Classificando classe {}...')).format(str(classe)))
             geom = classes[classe]['geom']
+            if moldura:
+                geom = geom.intersection(moldura_geom)
             coords = geom.asPolygon()[0]
             caminho = []
             for ponto in coords:
@@ -527,6 +585,7 @@ class MosaicRaster(QgsProcessingAlgorithm):
         Percent = 100.0/(n_lin*n_col*n_bands)
         current = 0
         
+        imgs = {}
         for k in range(n_bands):
             feedback.pushInfo((self.tr('Creating band {}...', 'Criando banda {}...')).format(str(k+1)))
             # Criar Array do mosaico
@@ -540,21 +599,25 @@ class MosaicRaster(QgsProcessingAlgorithm):
             
             # Para cada classe abrir banda da(s) imagem(ns)
             for classe in classes:
-                imgs = {}
+                # Deixando somente imagens a serem utilizadas
+                for item in valores:
+                    if (item not in classe) and (item in imgs):
+                        del imgs[item]
+                # Preenchendo dados da imagem no dicionário
                 for img in classe:
-                    img_path = lista[img-1]
-                    image = gdal.Open(img_path)
-                    ulx, xres, xskew, uly, yskew, yres  = image.GetGeoTransform()
-                    img_origem = (ulx, uly)
-                    img_resol_X = abs(xres)
-                    img_resol_Y = abs(yres)
-                    img_band = image.GetRasterBand(k+1).ReadAsArray()
-                    imgs[img] = {'band': img_band,
-                                 'xres': img_resol_X,
-                                 'yres': img_resol_Y,
-                                 'origem': img_origem }
-                    image = None
-                                
+                    if img not in imgs:
+                        img_path = lista[img-1]
+                        image = gdal.Open(img_path)
+                        ulx, xres, xskew, uly, yskew, yres  = image.GetGeoTransform()
+                        img_origem = (ulx, uly)
+                        img_resol_X = abs(xres)
+                        img_resol_Y = abs(yres)
+                        img_band = image.GetRasterBand(k+1).ReadAsArray()
+                        imgs[img] = {'band': img_band,
+                                     'xres': img_resol_X,
+                                     'yres': img_resol_Y,
+                                     'origem': img_origem }
+                        image = None
                 if sobrep == 0: # Se for "primeiro", interpolar apenas da primeira img da comb, caso contrário
                     img = classe[0]
                     # Para cada pixel da classe
