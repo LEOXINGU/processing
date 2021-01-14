@@ -61,6 +61,9 @@ class Inom2utmGrid(QgsProcessingAlgorithm):
 
         return 'lf_cartography'
     
+    def tags(self):
+        return self.tr('name,frame,utm,grid,system,map,inom,mi,sistemático,índice,nomenclatura,grade,mapeamento,moldura').split(',')
+    
     def shortHelpString(self):
         txt_en = 'This algorithm returns the polygon correspondent to the <b>frame</b> related to a scale of the Brazilian Mapping System from name (map index).'
         txt_pt = 'Este algoritmo retorna o polígono correspondente à <b>moldura</b> relativa a uma escala do <b>Mapeamento Sistemático Brasileiro</b>. Esta moldura é calculada a partir do Índice de Nomenclatura <b>INOM</b> ou Mapa Índice <b>MI</b> válido, que deve ser dado pelo usuário.'

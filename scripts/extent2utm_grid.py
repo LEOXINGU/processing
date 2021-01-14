@@ -66,7 +66,10 @@ class Extent2UTMGrid(QgsProcessingAlgorithm):
     def groupId(self):
 
         return 'lf_cartography'
-
+    
+    def tags(self):
+        return self.tr('name,extent,extension,frame,utm,grid,system,map,inom,mi,sistemático,índice,nomenclatura,grade,mapeamento,moldura').split(',')
+    
     def shortHelpString(self):
         txt_en = 'This algorithm returns the polygons correspondent to the <b>frames</b> related to a scale of the Brazilian Mapping System from a specific <b>extent</b> definied by the user.'
         txt_pt = 'Este algoritmo retorna os polígonos correspondentes às molduras relacionados a uma escala do Mapeamento Sistemático Brasileiro considerando uma extensão específica definida pelo usuário.'

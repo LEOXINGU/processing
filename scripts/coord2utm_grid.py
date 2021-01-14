@@ -57,7 +57,10 @@ class Coord2UTMGrid(QgsProcessingAlgorithm):
     def groupId(self):
 
         return 'lf_cartography'
-
+    
+    def tags(self):
+        return self.tr('name,coordinates,frame,utm,grid,system,map,inom,mi,sistemático,índice,nomenclatura,grade,mapeamento,moldura').split(',')
+    
     def shortHelpString(self):
         txt_en = 'This algorithm returns the polygon correspondent to the <b>frame</b> related to a scale of the <b>Brazilian Mapping System</b>. That frame is calculated from a <b>Point</b> definied by the user.'
         txt_pt = 'Este algoritmo retorna o polígono correspondente à <b>moldura</b> relativa a uma escala do <b>Mapeamento Sistemático Brasileiro</b>. Esta moldura é calculada a partir das coordenadas de um <b>Ponto</b> definido pelo usuário.'

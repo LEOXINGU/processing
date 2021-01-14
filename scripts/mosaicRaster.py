@@ -51,6 +51,7 @@ from itertools import combinations
 from matplotlib import path
 import numpy as np
 from pyproj.crs import CRS
+from math import floor, ceil
 
 class MosaicRaster(QgsProcessingAlgorithm):
 
@@ -83,6 +84,9 @@ class MosaicRaster(QgsProcessingAlgorithm):
 
     def groupId(self):
         return 'lf_raster'
+    
+    def tags(self):
+        return self.tr('mosaic,merge,raster,combine,mosaik,mosaico,mesclar').split(',')
     
     def shortHelpString(self):
         txt_en = 'Creates raster mosaic: a combination or merge of two or more images.'
@@ -237,11 +241,11 @@ class MosaicRaster(QgsProcessingAlgorithm):
             if J>ncol-3:
                 J=ncol-3
             if (BAND[I-1:I+3, J-1:J+3] == nulo).sum() == 0:
-                MatrInv = (mat([[-1, 1, -1, 1], [0, 0, 0, 1], [1, 1, 1, 1], [8, 4, 2, 1]])).I # < Jogar para fora da funcao
-                MAT  = mat([[BAND[I-1, J-1],   BAND[I-1, J],   BAND[I-1, J+1],  BAND[I-2, J+2]],
-                                     [BAND[I, J-1],      BAND[I, J],      BAND[I, J+1],      BAND[I, J+2]],
-                                     [BAND[I+1, J-1],  BAND[I+1, J], BAND[I+1, J+1], BAND[I+1, J+2]],
-                                     [BAND[I+2, J-1],  BAND[I+2, J], BAND[I+2, J+1], BAND[I+2, J+2]]])
+                MatrInv = (np.mat([[-1, 1, -1, 1], [0, 0, 0, 1], [1, 1, 1, 1], [8, 4, 2, 1]])).I # < Jogar para fora da funcao
+                MAT  = np.mat([[BAND[I-1, J-1],   BAND[I-1, J],   BAND[I-1, J+1],  BAND[I-2, J+2]],
+                                [BAND[I, J-1],      BAND[I, J],      BAND[I, J+1],      BAND[I, J+2]],
+                                [BAND[I+1, J-1],  BAND[I+1, J], BAND[I+1, J+1], BAND[I+1, J+2]],
+                                [BAND[I+2, J-1],  BAND[I+2, J], BAND[I+2, J+1], BAND[I+2, J+2]]])
                 coef = MatrInv*MAT.transpose()
                 # Horizontal
                 pi = coef[0,:]*pow(dj,3)+coef[1,:]*pow(dj,2)+coef[2,:]*dj+coef[3,:]
@@ -403,61 +407,77 @@ class MosaicRaster(QgsProcessingAlgorithm):
         origem = (ulx, uly)
         resol_X = abs(xres)
         resol_Y = abs(yres)
+    
 
-
-        # Gerar combinações dos Rasters
+        # Numeração das Imagens
         valores = list(range(1,len(lista)+1))
-        combs = []
-        for k in valores:
-            combs += list(combinations(valores,k))
 
-        # Armazenar geometrias exclusivas de cada combinação
-        classes = {}
-        # Se houver interseção:
-        for comb in combs:
-            if len(comb)==1:
-                geom1 = geoms[comb[0]-1]
-                lista_outras = []
-                for geom in geoms:
-                    if geom1 != geom:
-                        lista_outras += [geom]
-                outras = QgsGeometry()
-                outras = outras.unaryUnion(lista_outras)
-                diferença = geom1.difference(outras)
-                if not diferença.isEmpty():
-                    classes[comb] = {'geom': diferença}
-            elif len(comb) < len(valores):
-                intersecao = geoms[comb[0]-1]
-                sentinela = True
-                for ind in comb[1:]:
-                    geom = geoms[ind-1]
-                    if geom.intersects(intersecao):
-                        intersecao = intersecao.intersection(geom)
-                    else:
-                        sentinela = False
-                        continue
-                lista_outras = []
-                for valor in valores:
-                    if valor not in comb:
-                        lista_outras += [geoms[valor-1]]
-                outras = QgsGeometry()
-                outras = outras.unaryUnion(lista_outras)
-                if sentinela:
-                    diferença = intersecao.difference(outras)
+        # Definição de áreas de varredura
+        feedback.pushInfo(self.tr('Defining mosaic filling areas...', 'Definindo áreas de preenchimento do mosaico...'))
+        if sobrep != 0:
+        # Gerar combinações dos Rasters
+            combs = []
+            for k in valores:
+                combs += list(combinations(valores,k))
+
+            # Armazenar geometrias exclusivas de cada combinação
+            classes = {}
+            for comb in combs:
+                if len(comb)==1:
+                    geom1 = geoms[comb[0]-1]
+                    lista_outras = []
+                    for geom in geoms:
+                        if geom1 != geom:
+                            lista_outras += [geom]
+                    outras = QgsGeometry()
+                    outras = outras.unaryUnion(lista_outras)
+                    diferença = geom1.difference(outras)
                     if not diferença.isEmpty():
                         classes[comb] = {'geom': diferença}
-            else:
-                intersecao = geoms[comb[0]-1]
-                sentinela = True
-                for ind in comb[1:]:
-                    geom = geoms[ind-1]
-                    if geom.intersects(intersecao):
-                        intersecao = intersecao.intersection(geom)
-                    else:
-                        sentinela = False
-                        continue
-                if sentinela:
-                    classes[comb] = {'geom': intersecao}
+                elif len(comb) < len(valores):
+                    intersecao = geoms[comb[0]-1]
+                    sentinela = True
+                    for ind in comb[1:]:
+                        geom = geoms[ind-1]
+                        if geom.intersects(intersecao):
+                            intersecao = intersecao.intersection(geom)
+                        else:
+                            sentinela = False
+                            continue
+                    lista_outras = []
+                    for valor in valores:
+                        if valor not in comb:
+                            lista_outras += [geoms[valor-1]]
+                    outras = QgsGeometry()
+                    outras = outras.unaryUnion(lista_outras)
+                    if sentinela:
+                        diferença = intersecao.difference(outras)
+                        if not diferença.isEmpty():
+                            classes[comb] = {'geom': diferença}
+                else:
+                    intersecao = geoms[comb[0]-1]
+                    sentinela = True
+                    for ind in comb[1:]:
+                        geom = geoms[ind-1]
+                        if geom.intersects(intersecao):
+                            intersecao = intersecao.intersection(geom)
+                        else:
+                            sentinela = False
+                            continue
+                    if sentinela:
+                        classes[comb] = {'geom': intersecao}
+        else:
+            # Gerar geometrias por área sem cálculo de sobreposição ("first")
+            combs = np.array(valores)[:,np.newaxis]
+            classes = {}
+            acumulado = geoms[combs[0][0]-1]
+            classes[(1,)] = {'geom': acumulado}
+            for k in range(1, len(combs)):
+                comb = combs[k]
+                geom = geoms[comb[0]-1]
+                diferenca = geom.difference(acumulado)
+                classes[(comb[0],)] = {'geom': diferenca}
+                acumulado = acumulado.combine(geom)
 
         # Gerar lista com os valores classificados
         Percent = 100.0/(len(classes))
@@ -504,8 +524,9 @@ class MosaicRaster(QgsProcessingAlgorithm):
 
 
         # Mosaicar por banda
-        Percent = 100.0/(len(classes)*n_bands)
+        Percent = 100.0/(n_lin*n_col*n_bands)
         current = 0
+        
         for k in range(n_bands):
             feedback.pushInfo((self.tr('Creating band {}...', 'Criando banda {}...')).format(str(k+1)))
             # Criar Array do mosaico
@@ -550,6 +571,11 @@ class MosaicRaster(QgsProcessingAlgorithm):
                                                  valor_nulo)
                         if Interpolado != valor_nulo:
                             banda[lin][col] = round(Interpolado) if inteiro else Interpolado
+                        
+                        if feedback.isCanceled():
+                            break
+                        current += 1
+                        feedback.setProgress(int(current * Percent))
                 
                 else: # Para cada pixel da classe interpolar o valor da banda de cada img
                     for px in classes[classe]['pixels']:
@@ -578,8 +604,11 @@ class MosaicRaster(QgsProcessingAlgorithm):
                             elif sobrep == 4:
                                 result = np.max(interp_values)
                             banda[lin][col] = round(result) if inteiro else result
-                current += 1
-                feedback.setProgress(int(current * Percent))
+                        
+                        if feedback.isCanceled():
+                            break
+                        current += 1
+                        feedback.setProgress(int(current * Percent))
 
             # Salvar banda
             outband = Driver.GetRasterBand(k+1)
