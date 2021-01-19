@@ -70,7 +70,7 @@ class MeasureLayers(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         units_dist = [self.tr('Meters (m)', 'Metros (m)'),
-                      self.tr('Feets (ft)', 'Pés (ft)'),
+                      self.tr('Feet (ft)', 'Pés (ft)'),
                       self.tr('Yards (yd)', 'Jardas (Yd)'),
                       self.tr('Kilometers (Km)', 'Quilômetros (Km)'),
                       self.tr('Miles (mi)', 'Milhas (mi)')

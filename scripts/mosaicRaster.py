@@ -261,9 +261,9 @@ class MosaicRaster(QgsProcessingAlgorithm):
             if J>ncol-3:
                 J=ncol-3
             if (BAND[I-1:I+3, J-1:J+3] == nulo).sum() == 0:
-                MatrInv = (np.mat([[-1, 1, -1, 1], [0, 0, 0, 1], [1, 1, 1, 1], [8, 4, 2, 1]])).I # < Jogar para fora da funcao
-                MAT  = np.mat([[BAND[I-1, J-1],   BAND[I-1, J],   BAND[I-1, J+1],  BAND[I-2, J+2]],
-                                [BAND[I, J-1],      BAND[I, J],      BAND[I, J+1],      BAND[I, J+2]],
+                MatrInv = np.mat([[-1/6, 0.5, -0.5, 1/6], [ 0.5, -1., 0.5, 0.], [-1/3, -0.5,  1., -1/6], [ 0., 1., 0., 0.]]) # resultado da inversa: (np.mat([[-1, 1, -1, 1], [0, 0, 0, 1], [1, 1, 1, 1], [8, 4, 2, 1]])).I #
+                MAT  = np.mat([ [BAND[I-1, J-1],  BAND[I-1, J], BAND[I-1, J+1], BAND[I-2, J+2]],
+                                [BAND[I, J-1],    BAND[I, J],   BAND[I, J+1],   BAND[I, J+2]],
                                 [BAND[I+1, J-1],  BAND[I+1, J], BAND[I+1, J+1], BAND[I+1, J+2]],
                                 [BAND[I+2, J-1],  BAND[I+2, J], BAND[I+2, J+1], BAND[I+2, J+2]]])
                 coef = MatrInv*MAT.transpose()
@@ -359,15 +359,17 @@ class MosaicRaster(QgsProcessingAlgorithm):
         SRC = []
         n_bands =[]
         GDT = []
+        nulos = []
         XRES, YRES = [], []
         for item in lista:
             image = gdal.Open(item)
-            SRC += [image.GetProjection()] # wkt
+            SRC += [QgsCoordinateReferenceSystem(image.GetProjection())] # wkt
             ulx, xres, xskew, uly, yskew, yres  = image.GetGeoTransform()
             cols = image.RasterXSize
             rows = image.RasterYSize
             n_bands += [image.RasterCount]
             GDT += [image.GetRasterBand(1).DataType]
+            nulos += [image.GetRasterBand(1).GetNoDataValue()]
             XRES += [xres]
             YRES += [yres]
             image=None # Close image
@@ -390,14 +392,20 @@ class MosaicRaster(QgsProcessingAlgorithm):
         # Mesmo GDT
         if not GDT.count(GDT[0]) == len(GDT):
             raise QgsProcessingException(self.tr('The images must have the same data type!', 'As imagens devem ter o tipo de dado!'))
+        # Mesmo valor nulo
+        if not nulos.count(nulos[0]) == len(nulos):
+            raise QgsProcessingException(self.tr('The images must have the same definied null value!', 'As imagens devem ter o mesmo valor para definir pixel nulo!'))
         
         # Dados para o raster de saída
-        prj = SRC[0]
+        prj = SRC[0].toWkt()
         n_bands = n_bands[0]
         GDT = GDT[0]
         xres = np.mean(XRES)
         yres = np.mean(YRES)
-
+        NULO = valor_nulo
+        if valor_nulo == -1:
+            valor_nulo = nulos[0] if nulos[0] is not None else 0
+        
         if moldura: # Pegar extensão X e Y da moldura
             # SRC da moldura deve ser o mesmo dos raster
             if vlayer.sourceCrs() != QgsCoordinateReferenceSystem(prj):
@@ -455,7 +463,8 @@ class MosaicRaster(QgsProcessingAlgorithm):
                 n_col = round((x_max-x_min)/abs(xres))
                 xres = (x_max-x_min)/n_col
                 yres = -(y_max-y_min)/n_lin
-
+        
+        feedback.pushInfo(self.tr('Resolution: ', 'Resolução: ') + str(n_lin) +'x' + str(n_col))
         # Geotransform do Mosaico
         ulx = x_min
         uly = y_max
@@ -464,20 +473,26 @@ class MosaicRaster(QgsProcessingAlgorithm):
         origem = (ulx, uly)
         resol_X = abs(xres)
         resol_Y = abs(yres)
-
         # Numeração das Imagens
         valores = list(range(1,len(lista)+1))
 
         # Definição de áreas de varredura
         feedback.pushInfo(self.tr('Defining mosaic filling areas...', 'Definindo áreas de preenchimento do mosaico...'))
+        
         if sobrep != 0:
         # Gerar combinações dos Rasters
             combs = []
-            for k in valores:
+            feedback.pushInfo(self.tr('Creating combinations...', 'Gerando combinações...'))
+            for k in range(1,5):
                 combs += list(combinations(valores,k))
-
+                if feedback.isCanceled():
+                    break
             # Armazenar geometrias exclusivas de cada combinação
             classes = {}
+            feedback.pushInfo(self.tr('Indentifying combinations...', 'Identificando combinações...'))
+            Percent = 100.0/(len(combs))
+            current = 0
+            
             for comb in combs:
                 if len(comb)==1:
                     geom1 = geoms[comb[0]-1]
@@ -522,6 +537,10 @@ class MosaicRaster(QgsProcessingAlgorithm):
                             continue
                     if sentinela:
                         classes[comb] = {'geom': intersecao}
+                if feedback.isCanceled():
+                    break
+                current += 1
+                feedback.setProgress(int(current * Percent))
         else:
             # Gerar geometrias por área sem cálculo de sobreposição ("first")
             combs = np.array(valores)[:,np.newaxis]
@@ -534,6 +553,8 @@ class MosaicRaster(QgsProcessingAlgorithm):
                 diferenca = geom.difference(acumulado)
                 classes[(comb[0],)] = {'geom': diferenca}
                 acumulado = acumulado.combine(geom)
+                if feedback.isCanceled():
+                    break
 
         # Gerar lista com os valores classificados
         Percent = 100.0/(len(classes))
@@ -543,7 +564,14 @@ class MosaicRaster(QgsProcessingAlgorithm):
             geom = classes[classe]['geom']
             if moldura:
                 geom = geom.intersection(moldura_geom)
-            coords = geom.asPolygon()[0]
+            if geom.type() == 2:
+                if geom.isMultipart():
+                    coords = geom.asMultiPolygon()[0][0]
+                else:
+                    coords = geom.asPolygon()[0]
+            else:
+                del classes[classe]
+                continue
             caminho = []
             for ponto in coords:
                 linha = (origem[1]-ponto.y())/resol_Y
@@ -590,13 +618,12 @@ class MosaicRaster(QgsProcessingAlgorithm):
             feedback.pushInfo((self.tr('Creating band {}...', 'Criando banda {}...')).format(str(k+1)))
             # Criar Array do mosaico
             tipo = gdal_array.GDALTypeCodeToNumericTypeCode(GDT)
-            banda = np.ones((n_lin,n_col), dtype = tipo) * valor_nulo
-            inteiro = True if GDT in (gdal.GDT_Byte, 
-                                      gdal.GDT_UInt16, 
+            inteiro = True if GDT in (gdal.GDT_Byte,
+                                      gdal.GDT_UInt16,
                                       gdal.GDT_Int16,
                                       gdal.GDT_UInt32,
                                       gdal.GDT_Int32) else False
-            
+            banda = np.ones((n_lin,n_col), dtype = tipo) * (int(valor_nulo) if inteiro else valor_nulo)
             # Para cada classe abrir banda da(s) imagem(ns)
             for classe in classes:
                 # Deixando somente imagens a serem utilizadas
@@ -677,7 +704,8 @@ class MosaicRaster(QgsProcessingAlgorithm):
             outband = Driver.GetRasterBand(k+1)
             feedback.pushInfo(self.tr('Writing Band {}...'.format(k+1), 'Escrevendo Banda {}...'.format(k+1)))
             outband.WriteArray(banda)
-            outband.SetNoDataValue(valor_nulo)
+            if NULO != -1:
+                outband.SetNoDataValue(valor_nulo)
 
         # Salvar e Fechar Raster
         Driver.FlushCache()   # Escrever no disco
